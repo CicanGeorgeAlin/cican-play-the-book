@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CICAN — PLAY THE BOOK</title>
+
+<meta name="description"
+content="CICAN — Play the book.">
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    background: #000;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow-x: hidden;
+}
+
+/* =================================
+   HERO
+================================= */
+
+.hero {
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    position: relative;
+
+    background: #000;
+
+    overflow: hidden;
+}
+
+/* Very subtle light around CICAN */
+
+.hero::before {
+    content: "";
+
+    position: absolute;
+
+    width: 420px;
+    height: 420px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,0.035);
+
+    filter: blur(80px);
+
+    pointer-events: none;
+}
+
+/* =================================
+   CICAN
+================================= */
+
+.cican {
+    width: 170px;
+    height: 170px;
+
+    background: #fff;
+
+    border-radius: 50%;
+
+    position: relative;
+
+    box-shadow:
+        0 0 15px #fff,
+        0 0 40px rgba(255,255,255,0.9),
+        0 0 90px rgba(255,255,255,0.5),
+        0 0 150px rgba(255,255,255,0.18);
+
+    animation:
+        cicanFloat 4s ease-in-out infinite,
+        cicanGlow 3s ease-in-out infinite;
+
+    z-index: 2;
+}
+
+/* Eyes */
+
+.cican::before,
+.cican::after {
+    content: "";
+
+    position: absolute;
+
+    width: 25px;
+    height: 25px;
+
+    background: #000;
+
+    border-radius: 50%;
+
+    top: 62px;
+}
+
+.cican::before {
+    left: 45px;
+}
+
+.cican::after {
+    right: 45px;
+}
+
+/* Movement */
+
+@keyframes cicanFloat {
+
+    0% {
+        transform: translateY(0px);
+    }
+
+    25% {
+        transform: translateY(-9px);
+    }
+
+    50% {
+        transform: translateY(0px);
+    }
+
+    75% {
+        transform: translateY(9px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+
+}
+
+/* Brightness */
+
+@keyframes cicanGlow {
+
+    0%, 100% {
+        box-shadow:
+            0 0 15px #fff,
+            0 0 40px rgba(255,255,255,0.9),
+            0 0 90px rgba(255,255,255,0.5),
+            0 0 150px rgba(255,255,255,0.18);
+    }
+
+    50% {
+        box-shadow:
+            0 0 20px #fff,
+            0 0 55px rgba(255,255,255,1),
+            0 0 120px rgba(255,255,255,0.65),
+            0 0 190px rgba(255,255,255,0.22);
+    }
+
+}
+
+/* =================================
+   NAME
+================================= */
+
+.name {
+    margin-top: 42px;
+
+    font-size: clamp(40px, 10vw, 72px);
+
+    font-weight: 900;
+
+    letter-spacing: 10px;
+
+    color: #fff;
+
+    text-shadow:
+        0 0 20px rgba(255,255,255,0.45);
+
+    z-index: 2;
+}
+
+/* =================================
+   PLAY THE BOOK
+================================= */
+
+.play {
+    margin-top: 18px;
+
+    font-size: clamp(18px, 4vw, 28px);
+
+    font-weight: 400;
+
+    letter-spacing: 5px;
+
+    color: #fff;
+
+    z-index: 2;
+}
+
+.play span {
+    display: inline-block;
+
+    animation: lightPulse 3s ease-in-out infinite;
+}
+
+@keyframes lightPulse {
+
+    0%, 100% {
+        opacity: 0.75;
+    }
+
+    50% {
+        opacity: 1;
+        text-shadow:
+            0 0 20px rgba(255,255,255,0.7);
+    }
+
+}
+
+/* =================================
+   ENTER
+================================= */
+
+.enter {
+    margin-top: 55px;
+
+    padding: 15px 32px;
+
+    background: transparent;
+
+    border: 1px solid rgba(255,255,255,0.45);
+
+    border-radius: 50px;
+
+    color: white;
+
+    font-size: 13px;
+
+    letter-spacing: 3px;
+
+    cursor: pointer;
+
+    transition:
+        background .25s ease,
+        color .25s ease,
+        box-shadow .25s ease;
+}
+
+.enter:hover {
+    background: white;
+
+    color: black;
+
+    box-shadow:
+        0 0 25px rgba(255,255,255,0.5);
+}
+
+/* =================================
+   LIBRARY
+================================= */
+
+.library {
+    min-height: 100vh;
+
+    background: #000;
+
+    padding: 90px 20px 120px;
+
+    border-top: 1px solid #111;
+}
+
+.library-inner {
+    max-width: 1000px;
+
+    margin: auto;
+}
+
+.library-title {
+    text-align: center;
+
+    margin-bottom: 55px;
+}
+
+.library-title h2 {
+    margin: 0;
+
+    font-size: 28px;
+
+    font-weight: 400;
+
+    letter-spacing: 5px;
+}
+
+.books {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(260px, 1fr));
+
+    gap: 24px;
+}
+
+/* =================================
+   BOOK
+================================= */
+
+.book {
+    background: #050505;
+
+    border: 1px solid #1d1d1d;
+
+    border-radius: 18px;
+
+    padding: 30px;
+
+    transition:
+        transform .25s ease,
+        border-color .25s ease,
+        box-shadow .25s ease;
+}
+
+.book:hover {
+    transform: translateY(-6px);
+
+    border-color: #444;
+
+    box-shadow:
+        0 20px 60px rgba(255,255,255,0.04);
+}
+
+.book-cican {
+    width: 52px;
+    height: 52px;
+
+    background: white;
+
+    border-radius: 50%;
+
+    position: relative;
+
+    margin-bottom: 24px;
+
+    box-shadow:
+        0 0 18px rgba(255,255,255,0.45);
+}
+
+.book-cican::before,
+.book-cican::after {
+    content: "";
+
+    position: absolute;
+
+    width: 8px;
+    height: 8px;
+
+    background: black;
+
+    border-radius: 50%;
+
+    top: 19px;
+}
+
+.book-cican::before {
+    left: 14px;
+}
+
+.book-cican::after {
+    right: 14px;
+}
+
+.book h3 {
+    margin: 0;
+
+    font-size: 28px;
+
+    font-weight: 700;
+}
+
+.author {
+    margin-top: 7px;
+
+    color: #666;
+
+    font-size: 14px;
+}
+
+.description {
+    margin: 20px 0 28px;
+
+    color: #999;
+
+    line-height: 1.7;
+
+    font-size: 15px;
+}
+
+.play-button {
+    width: 100%;
+
+    padding: 14px;
+
+    border: 1px solid #444;
+
+    border-radius: 10px;
+
+    background: white;
+
+    color: black;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+    cursor: pointer;
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.play-button:hover {
+    transform: scale(1.02);
+
+    box-shadow:
+        0 0 25px rgba(255,255,255,0.35);
+}
+
+/* =================================
+   MOBILE
+================================= */
+
+@media (max-width: 600px) {
+
+    .hero {
+        min-height: 100svh;
+    }
+
+    .cican {
+        width: 135px;
+        height: 135px;
+    }
+
+    .cican::before,
+    .cican::after {
+        width: 20px;
+        height: 20px;
+
+        top: 49px;
+    }
+
+    .cican::before {
+        left: 35px;
+    }
+
+    .cican::after {
+        right: 35px;
+    }
+
+    .name {
+        margin-top: 32px;
+
+        letter-spacing: 7px;
+    }
+
+    .play {
+        letter-spacing: 3px;
+    }
+
+}
+
+/* =================================
+   REDUCE MOTION
+================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .cican,
+    .play span {
+        animation: none;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+
+<!-- =================================
+     CICAN
+================================= -->
+
+<section class="hero">
+
+    <div class="cican"></div>
+
+    <div class="name">
+        CICAN
+    </div>
+
+    <div class="play">
+        <span>PLAY THE BOOK</span>
+    </div>
+
+    <button
+        class="enter"
+        onclick="document.getElementById('library').scrollIntoView()">
+        ENTER
+    </button>
+
+</section>
+
+
+<!-- =================================
+     BOOKS
+================================= -->
+
+<section class="library" id="library">
+
+    <div class="library-inner">
+
+        <div class="library-title">
+            <h2>BOOKS</h2>
+        </div>
+
+
+        <div class="books">
+
+
+            <!-- 1984 -->
+
+            <article class="book">
+
+                <div class="book-cican"></div>
+
+                <h3>1984</h3>
+
+                <div class="author">
+                    George Orwell
+                </div>
+
+                <div class="description">
+                    Enter a world of surveillance,
+                    propaganda, control, rebellion
+                    and hidden truth.
+                </div>
+
+                <button
+                    class="play-button"
+                    onclick="location.href='games/1984.html'">
+                    PLAY
+                </button>
+
+            </article>
+
+
+            <!-- FUTURE BOOK -->
+
+            <article class="book">
+
+                <div class="book-cican"></div>
+
+                <h3>COMING SOON</h3>
+
+                <div class="author">
+                    A new world
+                </div>
+
+                <div class="description">
+                    Every story becomes its own
+                    experience.
+                </div>
+
+                <button
+                    class="play-button"
+                    onclick="alert('Coming soon.')">
+                    SOON
+                </button>
+
+            </article>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+</body>
+</html>
