@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,
+      initial-scale=1.0,
+      maximum-scale=1.0,
+      user-scalable=no">
+<title>CICAN — The Great Gatsby Test</title>
+</head>
+<body>
+
+<script>
+(async function () {
+
+    const V14_URL = "v14.html";
+    const GATSBY_BOOK = "books/the-great-gatsby.js";
+    const ORIGINAL_BOOK = "books/nineteen-eighty-four.js";
+
+    try {
+
+        const response =
+            await fetch(
+                V14_URL + "?test=" + Date.now(),
+                {
+                    cache: "no-store"
+                }
+            );
+
+        if (!response.ok) {
+            throw new Error(
+                "Could not load v14.html (" +
+                response.status +
+                ")"
+            );
+        }
+
+        let v14 =
+            await response.text();
+
+        if (
+            !v14.includes(
+                ORIGINAL_BOOK
+            )
+        ) {
+            throw new Error(
+                "The expected V14 book reference was not found."
+            );
+        }
+
+        /*
+         * IMPORTANT:
+         *
+         * This test page uses the EXACT current V14.
+         * The only change is which external book file
+         * V14 loads.
+         */
+        v14 =
+            v14.replace(
+                ORIGINAL_BOOK,
+                GATSBY_BOOK
+            );
+
+        document.open();
+        document.write(v14);
+        document.close();
+
+    } catch (error) {
+
+        document.body.innerHTML =
+            "<div style="" +
+            "min-height:100vh;" +
+            "display:flex;" +
+            "align-items:center;" +
+            "justify-content:center;" +
+            "padding:24px;" +
+            "box-sizing:border-box;" +
+            "background:#000;" +
+            "color:#fff;" +
+            "font-family:Arial,sans-serif;" +
+            "text-align:center;" +
+            "">" +
+            "<div>" +
+            "<div style="font-size:22px;" +
+            "margin-bottom:12px;">" +
+            "CICAN — TEST ERROR" +
+            "</div>" +
+            "<div style="opacity:.7;" +
+            "font-size:14px;">" +
+            error.message +
+            "</div>" +
+            "</div>" +
+            "</div>";
+
+        console.error(
+            "CICAN Gatsby test:",
+            error
+        );
+    }
+
+})();
+</script>
+
+</body>
+</html>
