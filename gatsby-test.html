@@ -12,7 +12,7 @@
     maximum-scale=1.0,
     user-scalable=no">
 
-<title>CICAN — The Great Gatsby</title>
+<title>CICAN — The Great Gatsby Test</title>
 
 </head>
 
@@ -22,21 +22,21 @@
 
 (async function () {
 
-    const V14_FILE =
+    const V14_URL =
         "v14.html";
 
-    const BOOK_1 =
-        "books/nineteen-eighty-four.js";
-
-    const BOOK_2 =
+    const GATSBY_BOOK =
         "books/the-great-gatsby.js";
+
+    const ORIGINAL_BOOK =
+        "books/nineteen-eighty-four.js";
 
 
     try {
 
         const response =
             await fetch(
-                V14_FILE +
+                V14_URL +
                 "?gatsby-test=" +
                 Date.now(),
                 {
@@ -49,52 +49,59 @@
         if (!response.ok) {
 
             throw new Error(
-                "Could not load v14.html. HTTP " +
-                response.status
+                "Could not load v14.html (" +
+                response.status +
+                ")"
             );
 
         }
 
 
-        let html =
+        let v14 =
             await response.text();
 
 
         if (
-            html.indexOf(
-                BOOK_1
-            ) === -1
+            !v14.includes(
+                ORIGINAL_BOOK
+            )
         ) {
 
             throw new Error(
-                "The original V14 book reference was not found."
+                "The expected V14 book reference was not found."
             );
 
         }
 
 
         /*
-         * ONLY CHANGE:
+         * IMPORTANT:
+         *
+         * This loads the EXACT current V14.
+         *
+         * The ONLY change is:
          *
          * Nineteen Eighty-Four
-         *        ↓
+         *
+         * becomes
+         *
          * The Great Gatsby
          *
-         * Everything else remains
-         * the original V14.
+         * The V14 engine itself is not changed.
          */
 
-        html =
-            html.replace(
-                BOOK_1,
-                BOOK_2
+
+        v14 =
+            v14.replace(
+                ORIGINAL_BOOK,
+                GATSBY_BOOK
             );
 
 
         document.open();
 
         document.write(
-            html
+            v14
         );
 
         document.close();
@@ -112,16 +119,18 @@
 
 
         box.style.cssText =
-            "min-height:100vh;" +
-            "display:flex;" +
-            "align-items:center;" +
-            "justify-content:center;" +
-            "padding:24px;" +
-            "box-sizing:border-box;" +
-            "background:#000;" +
-            "color:#fff;" +
-            "font-family:Arial,sans-serif;" +
-            "text-align:center;";
+            [
+                "min-height:100vh",
+                "display:flex",
+                "align-items:center",
+                "justify-content:center",
+                "padding:24px",
+                "box-sizing:border-box",
+                "background:#000",
+                "color:#fff",
+                "font-family:Arial,sans-serif",
+                "text-align:center"
+            ].join(";");
 
 
         const message =
@@ -139,9 +148,12 @@
         title.textContent =
             "CICAN — TEST ERROR";
 
+
         title.style.cssText =
-            "font-size:22px;" +
-            "margin-bottom:12px;";
+            [
+                "font-size:22px",
+                "margin-bottom:12px"
+            ].join(";");
 
 
         const details =
@@ -156,22 +168,28 @@
                 ? error.message
                 : String(error);
 
+
         details.style.cssText =
-            "opacity:.7;" +
-            "font-size:14px;";
+            [
+                "opacity:.7",
+                "font-size:14px"
+            ].join(";");
 
 
         message.appendChild(
             title
         );
 
+
         message.appendChild(
             details
         );
 
+
         box.appendChild(
             message
         );
+
 
         document.body.appendChild(
             box
