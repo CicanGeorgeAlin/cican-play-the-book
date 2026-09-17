@@ -393,6 +393,12 @@ body {
     transition:
         transform .2s ease,
         box-shadow .2s ease;
+
+    text-decoration:
+        none;
+
+    display:
+        inline-block;
 }
 
 
@@ -604,9 +610,9 @@ body {
 
         <!-- MAIN CICAN -->
 
-        <div
+        <a
             class="cican"
-            onclick="playBook()"
+            href="v14.html"
             aria-label="Play the book"
         >
 
@@ -618,7 +624,7 @@ body {
 
             </div>
 
-        </div>
+        </a>
 
 
         <!-- BRAND -->
@@ -642,12 +648,12 @@ body {
 
         <!-- PLAY -->
 
-        <button
+        <a
             class="play-button"
-            onclick="playBook()"
+            href="v14.html"
         >
             PLAY
-        </button>
+        </a>
 
 
         <!-- BOOK -->
@@ -678,22 +684,6 @@ body {
 
 
 </div>
-
-
-<script>
-
-/* =====================================================
-   PLAY BOOK — V14
-===================================================== */
-
-function playBook() {
-
-    window.location.href =
-        "v14.html";
-
-}
-
-</script>
 
 
 </body>
