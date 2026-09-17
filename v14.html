@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 
 <meta name="viewport"
@@ -891,9 +892,7 @@ body {
         CICAN
     </div>
 
-    <div id="subtitle">
-        Nineteen Eighty-Four
-    </div>
+    <div id="subtitle"></div>
 
 </div>
 
@@ -922,9 +921,7 @@ body {
             CICAN — PLAY THE BOOK
         </div>
 
-        <div id="prologueTitle">
-            Nineteen Eighty-Four
-        </div>
+        <div id="prologueTitle"></div>
 
         <div id="prologueText"></div>
 
@@ -960,9 +957,7 @@ body {
         </div>
 
 
-        <div id="readerTitle">
-            Nineteen Eighty-Four
-        </div>
+        <div id="readerTitle"></div>
 
 
         <div id="readerText"></div>
@@ -1010,7 +1005,7 @@ body {
 
 
 <!-- =================================================
-     EXTERNAL BOOK
+     CURRENT BOOK
 ================================================= -->
 
 <script src="books/nineteen-eighty-four.js"></script>
@@ -1041,6 +1036,8 @@ There is NO typing effect.
 
 The movement is calculated from real
 elapsed time using requestAnimationFrame.
+
+The book itself is external to this engine.
 
 ==================================================
 */
@@ -1110,6 +1107,26 @@ const TARGET_READING_SECONDS = 900;
 
 const BOOK_READ =
     window.BOOK_READ;
+
+
+/* =================================================
+   LOAD BOOK UI
+================================================= */
+
+document.getElementById(
+    "subtitle"
+).textContent =
+    BOOK_READ.title;
+
+document.getElementById(
+    "prologueTitle"
+).textContent =
+    BOOK_READ.title;
+
+document.getElementById(
+    "readerTitle"
+).textContent =
+    BOOK_READ.title;
 
 
 /* =================================================
@@ -1919,41 +1936,8 @@ const prologueButton =
     );
 
 
-const prologueScenes = [
-
-    {
-        text:
-        "The world you are about to enter has one rule: reality belongs to whoever controls it.",
-
-        button:
-        "CONTINUE"
-    },
-
-    {
-        text:
-        "History can be rewritten. Language can be reduced. Memory can become dangerous.",
-
-        button:
-        "CONTINUE"
-    },
-
-    {
-        text:
-        "One person begins to ask a simple question: what happens when you can no longer trust the world around you?",
-
-        button:
-        "CONTINUE"
-    },
-
-    {
-        text:
-        "You have 15 minutes. Discover the ideas inside Nineteen Eighty-Four.",
-
-        button:
-        "ENTER THE BOOK"
-    }
-
-];
+const prologueScenes =
+    BOOK_READ.prologueScenes;
 
 
 let prologueIndex = 0;
