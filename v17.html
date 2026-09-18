@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CICAN — QUANTUM EVOLUTION</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;color:#fff;font-family:Arial,Helvetica,sans-serif}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+#hud{position:fixed;left:18px;top:18px;z-index:5;pointer-events:none;letter-spacing:.16em;text-transform:uppercase}
+#title{font-size:11px;opacity:.72}
+#state{margin-top:7px;font-size:12px;opacity:.95}
+#hint{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:5;text-align:center;font-size:10px;letter-spacing:.12em;opacity:.42;white-space:nowrap;pointer-events:none}
+#discoveries{position:fixed;right:18px;top:18px;text-align:right;font-size:10px;letter-spacing:.12em;opacity:.45;z-index:5;pointer-events:none}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud">
+  <div id="title">CICAN — QUANTUM EVOLUTION</div>
+  <div id="state">STATE 01 · CICAN PARTICLE</div>
+</div>
+<div id="discoveries">DISCOVERIES 1</div>
+<div id="hint">GROW · MOVE · BRING TWO OF THE SAME STATE TOGETHER</div>
+
+<script>
+/*
+CICAN — QUANTUM EVOLUTION V17
+Development branch. V16 remains untouched.
+
+Core idea:
+TWO BECOME ONE.
+ONE BECOMES SOMETHING NEW.
+
+This is a game abstraction inspired by emergence across very small
+physical scales. The names are conceptual game states, not claims
+about real particle physics.
+*/
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+let W=innerWidth,H=innerHeight,DPR=Math.min(devicePixelRatio||1,2);
+function resize(){
+  W=innerWidth; H=innerHeight; DPR=Math.min(devicePixelRatio||1,2);
+  canvas.width=W*DPR; canvas.height=H*DPR;
+  canvas.style.width=W+"px"; canvas.style.height=H+"px";
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+addEventListener("resize",resize); resize();
+
+const MIN_SIZE=34;
+const MAX_SIZE=180;
+const GROWTH_STEP=.5;
+const MOVE=.10;
+const MERGE_DISTANCE=34;
+const DOUBLE_TAP_TIME=350;
+const TRAIL_DISTANCE=35;
+
+const STATES=[
+  {name:"CICAN PARTICLE", short:"PARTICLE", level:1, kind:"particle"},
+  {name:"QUANTUM STATE", short:"QUANTUM", level:2, kind:"quantum"},
+  {name:"NUCLEUS", short:"NUCLEUS", level:3, kind:"nucleus"},
+  {name:"ATOM", short:"ATOM", level:4, kind:"atom"},
+  {name:"MOLECULE", short:"MOLECULE", level:5, kind:"molecule"},
+  {name:"COMPLEX MOLECULE", short:"COMPLEX", level:6, kind:"complex"},
+  {name:"MOLECULAR LATTICE", short:"LATTICE", level:7, kind:"lattice"},
+  {name:"ORGANIC STRUCTURE", short:"ORGANIC", level:8, kind:"organic"},
+  {name:"DNA", short:"DNA", level:9, kind:"dna"},
+  {name:"GENOME", short:"GENOME", level:10, kind:"genome"},
+  {name:"CELL", short:"CELL", level:11, kind:"cell"},
+  {name:"LIVING SYSTEM", short:"LIFE", level:12, kind:"life"},
+  {name:"HUMAN", short:"HUMAN", level:13, kind:"human"}
+];
+
+let discovered=new Set([1]);
+let ones=[];
+let trails=[];
+let lastTap=0;
+let pointer={x:W/2,y:H/2,down:false,id:null};
+let nextId=1;
+let lastTime=performance.now();
+
+function rand(a,b){return a+Math.random()*(b-a)}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function stateFor(level){return STATES[Math.min(level,STATES.length)-1]}
+
+function makeOne(x,y,level=1,size=MIN_SIZE){
+  return {
+    id:nextId++, x,y,targetX:x,targetY:y,size,level,
+    lastTrailX:x,lastTrailY:y,phase:Math.random()*Math.PI*2,
+    born:performance.now(), pulse:0
+  };
+}
+
+ones.push(makeOne(W/2,H/2,1,MIN_SIZE));
+
+function setStateUI(level){
+  const s=stateFor(level);
+  document.getElementById("state").textContent=
+    "STATE "+String(s.level).padStart(2,"0")+" · "+s.name;
+  document.getElementById("discoveries").textContent=
+    "DISCOVERIES "+discovered.size;
+  if(level===1){
+    document.getElementById("hint").textContent=
+      "GROW · MOVE · BRING TWO OF THE SAME STATE TOGETHER";
+  }else{
+    document.getElementById("hint").textContent=
+      "STATE DISCOVERED · KEEP EVOLVING";
+  }
+}
+
+function grow(o){
+  o.size=clamp(o.size+GROWTH_STEP,MIN_SIZE,MAX_SIZE);
+}
+
+function split(o){
+  if(o.size<MIN_SIZE*1.7) return;
+  o.size=Math.max(MIN_SIZE,o.size*.5);
+  const a=makeOne(o.x+45,o.y, o.level, o.size);
+  a.targetX=o.targetX+45; a.targetY=o.targetY;
+  ones.push(a);
+}
+
+function tryMerge(){
+  for(let i=0;i<ones.length;i++){
+    for(let j=i+1;j<ones.length;j++){
+      const a=ones[i],b=ones[j];
+      if(a.level!==b.level) continue;
+      const dx=a.x-b.x,dy=a.y-b.y;
+      const d=Math.hypot(dx,dy);
+      const reach=(a.size+b.size)*.18+MERGE_DISTANCE;
+      if(d<reach){
+        const level=a.level+1;
+        const size=clamp(Math.sqrt(a.size*a.size+b.size*b.size),MIN_SIZE,MAX_SIZE);
+        const n=makeOne((a.x+b.x)/2,(a.y+b.y)/2,level,size);
+        n.targetX=n.x; n.targetY=n.y;
+        ones.splice(j,1); ones.splice(i,1); ones.push(n);
+        discovered.add(level);
+        setStateUI(level);
+        trails.push({x:n.x,y:n.y,life:1,level});
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function setTarget(x,y){
+  pointer.x=x;pointer.y=y;
+  let nearest=null,best=Infinity;
+  for(const o of ones){
+    const d=Math.hypot(x-o.x,y-o.y);
+    if(d<best){best=d;nearest=o}
+  }
+  if(nearest){
+    nearest.targetX=x; nearest.targetY=y;
+  }
+}
+
+function drawGlow(x,y,r,alpha=.18){
+  const g=ctx.createRadialGradient(x,y,0,x,y,r);
+  g.addColorStop(0,`rgba(255,255,255,${alpha})`);
+  g.addColorStop(.35,`rgba(255,255,255,${alpha*.32})`);
+  g.addColorStop(1,"rgba(255,255,255,0)");
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+}
+
+function drawOne(o,t){
+  const s=stateFor(o.level);
+  const pulse=1+Math.sin(t*.003+o.phase)*.025;
+  const r=o.size*.5*pulse;
+
+  drawGlow(o.x,o.y,r*2.2,.15);
+
+  ctx.save();
+  ctx.translate(o.x,o.y);
+
+  if(s.kind==="particle"){
+    ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#000";ctx.beginPath();ctx.arc(-r*.22,-r*.08,r*.09,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(r*.22,-r*.08,r*.09,0,Math.PI*2);ctx.fill();
+  }else if(s.kind==="quantum"){
+    ctx.strokeStyle="#fff";ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(0,0,r*.28,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="rgba(255,255,255,.45)";
+    ctx.beginPath();ctx.ellipse(0,0,r*1.25,r*.45,Math.sin(t*.001+o.phase),0,Math.PI*2);ctx.stroke();
+  }else if(s.kind==="nucleus"){
+    ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(0,0,r*.42,0,Math.PI*2);ctx.fill();
+    for(let k=0;k<4;k++){
+      const a=t*.0007+o.phase+k*Math.PI/2;
+      ctx.fillStyle="rgba(255,255,255,.8)";
+      ctx.beginPath();ctx.arc(Math.cos(a)*r*.65,Math.sin(a)*r*.65,r*.11,0,Math.PI*2);ctx.fill();
+    }
+  }else if(s.kind==="atom"){
+    ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(0,0,r*.28,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="rgba(255,255,255,.75)";
+    for(let k=0;k<2;k++){
+      ctx.beginPath();ctx.ellipse(0,0,r*(.8+k*.2),r*(.3+k*.12),k*Math.PI/3+t*.0003,0,Math.PI*2);ctx.stroke();
+    }
+  }else if(s.kind==="molecule"||s.kind==="complex"){
+    const n=s.kind==="molecule"?4:7;
+    const pts=[];
+    for(let k=0;k<n;k++){
+      const a=k*Math.PI*2/n+t*.00025+o.phase;
+      pts.push([Math.cos(a)*r*.58,Math.sin(a)*r*.58]);
+    }
+    ctx.strokeStyle="rgba(255,255,255,.7)";ctx.lineWidth=2;
+    for(let k=0;k<n;k++){ctx.beginPath();ctx.moveTo(pts[k][0],pts[k][1]);ctx.lineTo(pts[(k+1)%n][0],pts[(k+1)%n][1]);ctx.stroke()}
+    ctx.fillStyle="#fff";for(const p of pts){ctx.beginPath();ctx.arc(p[0],p[1],r*.14,0,Math.PI*2);ctx.fill()}
+    ctx.beginPath();ctx.arc(0,0,r*.18,0,Math.PI*2);ctx.fill();
+  }else if(s.kind==="lattice"){
+    ctx.strokeStyle="rgba(255,255,255,.55)";ctx.lineWidth=1;
+    const step=r*.38;
+    for(let x=-r;x<=r;x+=step)for(let y=-r;y<=r;y+=step){
+      if(x*x+y*y<r*r){ctx.beginPath();ctx.arc(x,y,r*.055,0,Math.PI*2);ctx.stroke()}
+    }
+  }else if(s.kind==="organic"){
+    ctx.strokeStyle="rgba(255,255,255,.72)";ctx.lineWidth=2;ctx.beginPath();
+    for(let k=0;k<=12;k++){const a=k/12*Math.PI*2;const rr=r*(.55+.12*Math.sin(k*2.1));const x=Math.cos(a)*rr,y=Math.sin(a)*rr;k?ctx.lineTo(x,y):ctx.moveTo(x,y)}
+    ctx.closePath();ctx.stroke();
+  }else if(s.kind==="dna"||s.kind==="genome"){
+    ctx.strokeStyle="#fff";ctx.lineWidth=2;
+    ctx.beginPath();
+    for(let k=0;k<=24;k++){const y=-r*.75+k/24*r*1.5;const x=Math.sin(k*.75+t*.001)*r*.42;k?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.stroke();
+    ctx.beginPath();
+    for(let k=0;k<=24;k++){const y=-r*.75+k/24*r*1.5;const x=-Math.sin(k*.75+t*.001)*r*.42;k?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.stroke();
+    for(let k=3;k<22;k+=3){const y=-r*.75+k/24*r*1.5;const x=Math.sin(k*.75+t*.001)*r*.42;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(-x,y);ctx.stroke()}
+  }else if(s.kind==="cell"){
+    ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,r*.82,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle="rgba(255,255,255,.14)";ctx.beginPath();ctx.arc(0,0,r*.78,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(0,0,r*.2,0,Math.PI*2);ctx.fill();
+  }else if(s.kind==="life"){
+    ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.beginPath();
+    for(let k=0;k<18;k++){const a=k/18*Math.PI*2;const rr=r*(.6+.18*Math.sin(k*3.7));const x=Math.cos(a)*rr,y=Math.sin(a)*rr;k?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.closePath();ctx.stroke();
+    ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(0,0,r*.18,0,Math.PI*2);ctx.fill();
+  }else{
+    // HUMAN: deliberately symbolic, not anatomically literal.
+    ctx.strokeStyle="#fff";ctx.lineWidth=Math.max(2,r*.035);
+    ctx.beginPath();ctx.arc(0,-r*.42,r*.18,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,-r*.24);ctx.lineTo(0,r*.42);
+    ctx.moveTo(-r*.35,0);ctx.lineTo(r*.35,0);
+    ctx.moveTo(0,r*.42);ctx.lineTo(-r*.28,r*.78);
+    ctx.moveTo(0,r*.42);ctx.lineTo(r*.28,r*.78);ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function update(dt,t){
+  for(const o of ones){
+    o.x+=(o.targetX-o.x)*MOVE;
+    o.y+=(o.targetY-o.y)*MOVE;
+    const dist=Math.hypot(o.x-o.lastTrailX,o.y-o.lastTrailY);
+    if(dist>=TRAIL_DISTANCE){
+      trails.push({x:o.x,y:o.y,life:1,level:o.level});
+      o.lastTrailX=o.x;o.lastTrailY=o.y;
+    }
+    o.pulse=Math.max(0,o.pulse-dt*.003);
+  }
+  for(const tr of trails) tr.life-=dt/1500;
+  trails=trails.filter(t=>t.life>0);
+  tryMerge();
+}
+
+function draw(t){
+  ctx.clearRect(0,0,W,H);
+
+  for(const tr of trails){
+    ctx.globalAlpha=Math.max(0,tr.life)*.24;
+    const r=2+tr.level*.15;
+    ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(tr.x,tr.y,r,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+
+  for(const o of ones) drawOne(o,t);
+
+  // Tiny central title only during the first state, fading naturally as complexity grows.
+  if(discovered.size===1 && ones.length===1){
+    ctx.globalAlpha=.32;
+    ctx.textAlign="center";
+    ctx.font="10px Arial";
+    ctx.letterSpacing="3px";
+    ctx.fillStyle="#fff";
+    ctx.fillText("ONE PARTICLE",W/2,Math.min(H*.72,620));
+    ctx.globalAlpha=1;
+  }
+}
+
+function loop(t){
+  const dt=Math.min(40,t-lastTime);lastTime=t;
+  update(dt,t);draw(t);requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+canvas.addEventListener("pointerdown",e=>{
+  pointer.down=true;pointer.id=e.pointerId;
+  try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+  const now=performance.now();
+  if(now-lastTap<DOUBLE_TAP_TIME){
+    let nearest=null,best=Infinity;
+    for(const o of ones){const d=Math.hypot(e.clientX-o.x,e.clientY-o.y);if(d<best){best=d;nearest=o}}
+    if(nearest) split(nearest);
+  }
+  lastTap=now;
+  setTarget(e.clientX,e.clientY);
+});
+
+canvas.addEventListener("pointermove",e=>{
+  if(!pointer.down)return;
+  setTarget(e.clientX,e.clientY);
+});
+
+canvas.addEventListener("pointerup",e=>{
+  pointer.down=false;
+  if(pointer.id===e.pointerId)pointer.id=null;
+});
+
+canvas.addEventListener("pointercancel",()=>{pointer.down=false;pointer.id=null});
+
+setInterval(()=>{
+  if(pointer.down){
+    let nearest=null,best=Infinity;
+    for(const o of ones){const d=Math.hypot(pointer.x-o.x,pointer.y-o.y);if(d<best){best=d;nearest=o}}
+    if(nearest)grow(nearest);
+  }
+},30);
+
+document.addEventListener("visibilitychange",()=>{
+  if(!document.hidden)lastTime=performance.now();
+});
+</script>
+</body>
+</html>
