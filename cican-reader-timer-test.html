@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#000000">
+<title>CICAN — PLAY THE BOOK — TIMER TEST</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+}
+
+.reader-panel {
+    width: min(94vw, 720px);
+    height: min(92vh, 820px);
+    background: #050505;
+    border: 1px solid rgba(255,255,255,.35);
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: 0 0 35px rgba(255,255,255,.16);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+.reader-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.reader-label {
+    font-size: 12px;
+    letter-spacing: 2px;
+    opacity: .6;
+}
+
+.close-button {
+    border: 1px solid rgba(255,255,255,.35);
+    background: #000;
+    color: #fff;
+    border-radius: 18px;
+    padding: 8px 14px;
+    font-size: 14px;
+}
+
+.reader-title {
+    font-size: 27px;
+    line-height: 1.2;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+}
+
+.reader-text {
+    color: #fff;
+    font-size: 17px;
+    line-height: 1.72;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    padding-right: 7px;
+    padding-bottom: 110px;
+    user-select: text;
+    -webkit-user-select: text;
+    touch-action: pan-y;
+    white-space: pre-wrap;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+}
+
+.reader-text::-webkit-scrollbar {
+    width: 4px;
+}
+
+.reader-text::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,.35);
+    border-radius: 10px;
+}
+
+/* =================================================
+   FLOATING READER HUD
+================================================= */
+
+#readerHUD {
+    position: absolute;
+    left: auto;
+    top: auto;
+    right: 18px;
+    bottom: 18px;
+
+    z-index: 50;
+
+    width: 150px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+
+    padding: 12px 13px;
+
+    border: 1px solid rgba(255,255,255,.22);
+    border-radius: 16px;
+
+    background: rgba(0,0,0,.88);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,.45),
+        0 0 20px rgba(255,255,255,.05);
+
+    pointer-events: auto;
+    touch-action: none;
+
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+
+    transition: box-shadow .15s ease;
+}
+
+#readerHUD.dragging {
+    cursor: grabbing;
+
+    box-shadow:
+        0 10px 35px rgba(0,0,0,.55),
+        0 0 25px rgba(255,255,255,.12);
+}
+
+.hud-handle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+
+    color: rgba(255,255,255,.38);
+    font-size: 8px;
+    letter-spacing: 2px;
+}
+
+.hud-dots {
+    letter-spacing: 3px;
+    font-size: 9px;
+}
+
+#readerTimer {
+    font-size: 25px;
+    line-height: 1;
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: .5px;
+}
+
+#readerPercent {
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 1.5px;
+    opacity: .58;
+}
+
+#readerProgress {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,.14);
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+#readerProgressBar {
+    height: 100%;
+    width: 0%;
+    background: #fff;
+    transform-origin: left center;
+}
+
+#readerPause {
+    width: 100%;
+    margin-top: 2px;
+
+    border: 1px solid rgba(255,255,255,.28);
+    border-radius: 16px;
+
+    background: #000;
+    color: #fff;
+
+    padding: 8px 10px;
+    font-size: 11px;
+    letter-spacing: 1px;
+
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.status {
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    opacity: .38;
+    min-height: 10px;
+}
+
+/* Reset / test controls */
+.test-controls {
+    position: absolute;
+    left: 18px;
+    bottom: 18px;
+    z-index: 40;
+
+    display: flex;
+    gap: 7px;
+}
+
+.test-button {
+    border: 1px solid rgba(255,255,255,.25);
+    background: rgba(0,0,0,.75);
+    color: #fff;
+    border-radius: 18px;
+    padding: 8px 12px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    touch-action: manipulation;
+}
+
+@media(max-width:480px) {
+    .reader-panel {
+        width: 100%;
+        height: 100%;
+        border-radius: 18px;
+        padding: 16px;
+    }
+
+    .reader-title {
+        font-size: 23px;
+    }
+
+    .reader-text {
+        font-size: 16px;
+        line-height: 1.7;
+    }
+
+    #readerHUD {
+        width: 142px;
+        right: 10px;
+        bottom: 10px;
+        padding: 11px 12px;
+    }
+
+    #readerTimer {
+        font-size: 23px;
+    }
+
+    .test-controls {
+        left: 10px;
+        bottom: 10px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="reader-panel">
+
+    <div class="reader-header">
+        <div class="reader-label">CICAN</div>
+        <button class="close-button" id="closeButton">CLOSE</button>
+    </div>
+
+    <div class="reader-title">
+        TIMER &amp; READER HUD TEST
+    </div>
+
+    <div class="reader-text" id="readerText">
+This is a dedicated CICAN reader HUD test.
+
+The purpose of this version is to test the timer, percentage completion, progress bar, pause and resume controls, and most importantly the ability to move the entire floating HUD around the reader with a finger.
+
+The HUD is deliberately compact. The timer is the largest element because it is the most important piece of information while reading. Under it is the percentage completed, followed by a thin progress line.
+
+The entire black floating panel can be grabbed and moved. It is constrained to the reader panel so it cannot disappear outside the reading area.
+
+The reader automatically scrolls through this test text. The timer counts down from the configured reading time and the percentage increases from zero to one hundred percent.
+
+The same design can later be placed directly into the real CICAN V14 reader without changing the V14 game mechanics.
+
+Keep reading. This text exists only to create enough scrolling distance for the HUD and progress system to be tested on a phone.
+
+The important interaction is simple: place your finger anywhere on the floating HUD except the PAUSE button, drag it, and release it. The panel should follow your finger smoothly.
+
+Press PAUSE to stop the reader. Press RESUME to continue. Press RESET to return the HUD to its original position and restart the test.
+
+The percentage is calculated from the actual reading position, not from an arbitrary word counter.
+
+The progress bar follows the same physical reading position.
+
+When the reader reaches the end, the timer becomes 00:00, the percentage becomes 100% COMPLETE, and the button becomes READ AGAIN.
+
+This test is intentionally separate from the game engine so the reader HUD can be perfected without risking the locked V14 mechanics.
+
+The final CICAN reader should remain minimal: black background, white typography, subtle borders, and no unnecessary decoration.
+
+Continue moving the HUD and checking the position on your phone. Test it near the top, bottom, left and right edges of the reader panel.
+
+The HUD should never leave the reader panel.
+
+This is the end of the test text. The reader will continue until the bottom is reached.
+    </div>
+
+    <div id="readerHUD">
+
+        <div class="hud-handle">
+            <span>CICAN</span>
+            <span class="hud-dots">•••</span>
+        </div>
+
+        <div id="readerTimer">15:00</div>
+
+        <div id="readerPercent">0% COMPLETE</div>
+
+        <div id="readerProgress">
+            <div id="readerProgressBar"></div>
+        </div>
+
+        <button id="readerPause">PAUSE</button>
+
+        <div class="status" id="readerStatus">AUTO-READING</div>
+
+    </div>
+
+    <div class="test-controls">
+        <button class="test-button" id="resetButton">RESET</button>
+    </div>
+
+</div>
+
+<script>
+const readerPanel =
+    document.querySelector(".reader-panel");
+
+const readerText =
+    document.getElementById("readerText");
+
+const readerHUD =
+    document.getElementById("readerHUD");
+
+const readerTimer =
+    document.getElementById("readerTimer");
+
+const readerPercent =
+    document.getElementById("readerPercent");
+
+const readerProgressBar =
+    document.getElementById("readerProgressBar");
+
+const readerPause =
+    document.getElementById("readerPause");
+
+const readerStatus =
+    document.getElementById("readerStatus");
+
+const resetButton =
+    document.getElementById("resetButton");
+
+const closeButton =
+    document.getElementById("closeButton");
+
+const TARGET_SECONDS = 900;
+
+let readerSeconds = TARGET_SECONDS;
+let readerPaused = false;
+let readerComplete = false;
+let readerAnimation = null;
+let readerLastTime = 0;
+let readerScrollPosition = 0;
+
+let hudDragging = false;
+let hudPointerId = null;
+let hudOffsetX = 0;
+let hudOffsetY = 0;
+
+function formatTime(seconds) {
+    const s = Math.max(0, Math.floor(seconds));
+
+    return String(Math.floor(s / 60)).padStart(2, "0")
+        + ":"
+        + String(s % 60).padStart(2, "0");
+}
+
+function updateReaderUI() {
+    const maxScroll = Math.max(
+        0,
+        readerText.scrollHeight -
+        readerText.clientHeight
+    );
+
+    const progress =
+        maxScroll > 0
+            ? Math.min(
+                1,
+                readerText.scrollTop / maxScroll
+            )
+            : 0;
+
+    const percent =
+        Math.floor(progress * 100);
+
+    readerTimer.textContent =
+        formatTime(readerSeconds);
+
+    readerPercent.textContent =
+        percent + "% COMPLETE";
+
+    readerProgressBar.style.width =
+        percent + "%";
+}
+
+function stopReaderAnimation() {
+    if (readerAnimation !== null) {
+        cancelAnimationFrame(readerAnimation);
+        readerAnimation = null;
+    }
+}
+
+function finishReader() {
+    if (readerComplete) {
+        return;
+    }
+
+    readerComplete = true;
+
+    stopReaderAnimation();
+
+    readerText.scrollTop =
+        readerText.scrollHeight;
+
+    readerScrollPosition =
+        Math.max(
+            0,
+            readerText.scrollHeight -
+            readerText.clientHeight
+        );
+
+    readerSeconds = 0;
+
+    readerTimer.textContent = "00:00";
+    readerPercent.textContent = "100% COMPLETE";
+    readerProgressBar.style.width = "100%";
+
+    readerPause.textContent = "READ AGAIN";
+    readerStatus.textContent = "COMPLETE";
+}
+
+function fluidReader(now) {
+    if (readerComplete) {
+        return;
+    }
+
+    const delta =
+        Math.min(
+            0.05,
+            (now - readerLastTime) / 1000
+        );
+
+    readerLastTime = now;
+
+    if (readerPaused) {
+        readerAnimation =
+            requestAnimationFrame(fluidReader);
+        return;
+    }
+
+    const maxScroll =
+        Math.max(
+            0,
+            readerText.scrollHeight -
+            readerText.clientHeight
+        );
+
+    if (maxScroll <= 0) {
+        finishReader();
+        return;
+    }
+
+    const pixelsPerSecond =
+        maxScroll / TARGET_SECONDS;
+
+    readerScrollPosition +=
+        pixelsPerSecond * delta;
+
+    readerScrollPosition =
+        Math.min(
+            maxScroll,
+            readerScrollPosition
+        );
+
+    readerText.scrollTop =
+        readerScrollPosition;
+
+    const progress =
+        readerScrollPosition / maxScroll;
+
+    readerSeconds =
+        Math.max(
+            0,
+            TARGET_SECONDS * (1 - progress)
+        );
+
+    updateReaderUI();
+
+    if (
+        readerScrollPosition >=
+        maxScroll - 1
+    ) {
+        finishReader();
+        return;
+    }
+
+    readerAnimation =
+        requestAnimationFrame(fluidReader);
+}
+
+function startReader() {
+    stopReaderAnimation();
+
+    readerPaused = false;
+    readerComplete = false;
+    readerSeconds = TARGET_SECONDS;
+    readerScrollPosition = 0;
+
+    readerText.scrollTop = 0;
+
+    readerPause.textContent = "PAUSE";
+    readerStatus.textContent = "AUTO-READING";
+
+    requestAnimationFrame(() => {
+        readerScrollPosition = 0;
+        readerLastTime = performance.now();
+        updateReaderUI();
+
+        readerAnimation =
+            requestAnimationFrame(fluidReader);
+    });
+}
+
+/* =================================================
+   DRAG HUD
+================================================= */
+
+readerHUD.addEventListener("pointerdown", function(e) {
+    if (e.target === readerPause) {
+        return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    hudDragging = true;
+    hudPointerId = e.pointerId;
+
+    const hudRect =
+        readerHUD.getBoundingClientRect();
+
+    hudOffsetX =
+        e.clientX - hudRect.left;
+
+    hudOffsetY =
+        e.clientY - hudRect.top;
+
+    readerHUD.classList.add("dragging");
+
+    try {
+        readerHUD.setPointerCapture(e.pointerId);
+    } catch (_) {}
+});
+
+readerHUD.addEventListener("pointermove", function(e) {
+    if (
+        !hudDragging ||
+        e.pointerId !== hudPointerId
+    ) {
+        return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const panelRect =
+        readerPanel.getBoundingClientRect();
+
+    const hudRect =
+        readerHUD.getBoundingClientRect();
+
+    let left =
+        e.clientX -
+        panelRect.left -
+        hudOffsetX;
+
+    let top =
+        e.clientY -
+        panelRect.top -
+        hudOffsetY;
+
+    const maxLeft =
+        panelRect.width -
+        hudRect.width;
+
+    const maxTop =
+        panelRect.height -
+        hudRect.height;
+
+    left =
+        Math.max(
+            0,
+            Math.min(maxLeft, left)
+        );
+
+    top =
+        Math.max(
+            0,
+            Math.min(maxTop, top)
+        );
+
+    readerHUD.style.left =
+        left + "px";
+
+    readerHUD.style.top =
+        top + "px";
+
+    readerHUD.style.right = "auto";
+    readerHUD.style.bottom = "auto";
+});
+
+function stopHUDDrag() {
+    hudDragging = false;
+    hudPointerId = null;
+    readerHUD.classList.remove("dragging");
+}
+
+readerHUD.addEventListener("pointerup", function(e) {
+    if (e.pointerId === hudPointerId) {
+        stopHUDDrag();
+    }
+});
+
+readerHUD.addEventListener("pointercancel", function(e) {
+    if (e.pointerId === hudPointerId) {
+        stopHUDDrag();
+    }
+});
+
+/* =================================================
+   CONTROLS
+================================================= */
+
+readerPause.addEventListener("pointerdown", function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (readerComplete) {
+        startReader();
+        return;
+    }
+
+    readerPaused = !readerPaused;
+
+    if (readerPaused) {
+        readerPause.textContent = "RESUME";
+        readerStatus.textContent = "PAUSED";
+    } else {
+        readerLastTime = performance.now();
+        readerPause.textContent = "PAUSE";
+        readerStatus.textContent = "AUTO-READING";
+    }
+});
+
+resetButton.addEventListener("pointerdown", function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    readerHUD.style.left = "";
+    readerHUD.style.top = "";
+    readerHUD.style.right = "";
+    readerHUD.style.bottom = "";
+
+    startReader();
+});
+
+closeButton.addEventListener("pointerdown", function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    startReader();
+});
+
+readerText.addEventListener("scroll", function() {
+    if (!readerPaused && !readerComplete) {
+        updateReaderUI();
+    }
+});
+
+startReader();
+</script>
+
+</body>
+</html>
