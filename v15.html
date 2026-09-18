@@ -1145,6 +1145,76 @@ const TARGET_READING_SECONDS = 900;
 const BOOK_READ =
     window.BOOK_READ;
 
+    /* =================================================
+   PHASE D — BOOK PROGRESSION
+================================================= */
+
+const BOOK_ORDER = [
+    "1984",
+    "gatsby",
+    "meditations",
+    "frankenstein",
+    "dracula"
+];
+
+
+let progressingToNextBook =
+    false;
+
+
+/* =================================================
+   CURRENT BOOK KEY
+================================================= */
+
+function getCurrentBookKey() {
+
+    const key =
+        window.location.hash
+            .substring(1)
+            .toLowerCase();
+
+    if (
+        BOOK_ORDER.includes(key)
+    ) {
+        return key;
+    }
+
+    return "1984";
+}
+
+
+/* =================================================
+   NEXT BOOK KEY
+================================================= */
+
+function getNextBookKey() {
+
+    const currentKey =
+        getCurrentBookKey();
+
+    const currentIndex =
+        BOOK_ORDER.indexOf(
+            currentKey
+        );
+
+    if (
+        currentIndex < 0
+    ) {
+        return null;
+    }
+
+    if (
+        currentIndex >=
+        BOOK_ORDER.length - 1
+    ) {
+        return null;
+    }
+
+    return BOOK_ORDER[
+        currentIndex + 1
+    ];
+}
+
 
 /* =================================================
    LOAD BOOK UI
@@ -1751,7 +1821,227 @@ function updateKnowledge(
     knowledge.element.style.top =
         knowledge.y + "px";
 }
+/* =================================================
+   PHASE D — CHECK READ + READ
+================================================= */
 
+function checkForReadMerges() {
+
+    /*
+        Need at least two READ objects.
+    */
+
+    if (
+        readObjects.length < 2
+    ) {
+        return;
+    }
+
+
+    /*
+        Do not allow multiple
+        book transitions at once.
+    */
+
+    if (
+        progressingToNextBook
+    ) {
+        return;
+    }
+
+
+    /*
+        Find two READ objects
+        that are close enough
+        to physically merge.
+    */
+
+    for (
+        let i = 0;
+        i < readObjects.length;
+        i++
+    ) {
+
+        for (
+            let j = i + 1;
+            j < readObjects.length;
+            j++
+        ) {
+
+            const readA =
+                readObjects[i];
+
+            const readB =
+                readObjects[j];
+
+
+            const d =
+                distance(
+                    readA.x,
+                    readA.y,
+                    readB.x,
+                    readB.y
+                );
+
+
+            if (
+                d <= MERGE_DISTANCE
+            ) {
+
+                mergeReadObjects(
+                    readA,
+                    readB
+                );
+
+                return;
+            }
+        }
+    }
+}
+
+
+/* =================================================
+   PHASE D — MERGE READ OBJECTS
+================================================= */
+
+function mergeReadObjects(
+    readA,
+    readB
+) {
+
+    /*
+        Find the next book.
+    */
+
+    const nextBook =
+        getNextBookKey();
+
+
+    /*
+        Dracula is currently
+        the final book.
+
+        Therefore there is
+        nowhere else to go.
+    */
+
+    if (
+        !nextBook
+    ) {
+        return;
+    }
+
+
+    /*
+        Prevent the same pair
+        from triggering twice.
+    */
+
+    progressingToNextBook =
+        true;
+
+
+    /*
+        Calculate the physical
+        merge position.
+    */
+
+    const mergeX =
+        (
+            readA.x +
+            readB.x
+        ) / 2;
+
+
+    const mergeY =
+        (
+            readA.y +
+            readB.y
+        ) / 2;
+
+
+    /*
+        Remove the two original
+        READ objects.
+    */
+
+    readA.element.remove();
+
+    readB.element.remove();
+
+
+    /*
+        Remove them from the
+        READ object array.
+    */
+
+    readObjects =
+        readObjects.filter(
+            read =>
+                read !== readA &&
+                read !== readB
+        );
+
+
+    /*
+        Create a temporary merged
+        READ visual.
+    */
+
+    const mergedElement =
+        document.createElement(
+            "div"
+        );
+
+
+    mergedElement.className =
+        "knowledge";
+
+
+    mergedElement.textContent =
+        "READ";
+
+
+    mergedElement.style.left =
+        mergeX + "px";
+
+
+    mergedElement.style.top =
+        mergeY + "px";
+
+
+    mergedElement.style.transform =
+        "translate(-50%, -50%) scale(1.25)";
+
+
+    document.body.appendChild(
+        mergedElement
+    );
+
+
+    /*
+        Give the player a short
+        visual merge moment.
+    */
+
+    setTimeout(
+        function() {
+
+            mergedElement.remove();
+
+
+            /*
+                LOAD NEXT BOOK
+            */
+
+            window.location.href =
+                "v15.html#" +
+                nextBook;
+
+        },
+        700
+    );
+    }
 
 /* =================================================
    POINTER DOWN
@@ -2929,24 +3219,33 @@ function animate() {
 
 
     /*
-        UPDATE READ OBJECTS.
-    */
+    UPDATE READ OBJECTS.
+*/
 
-    for (
-        const knowledge of readObjects
-    ) {
+for (
+    const knowledge of readObjects
+) {
 
-        updateKnowledge(
-            knowledge
-        );
-    }
-
-
-    requestAnimationFrame(
-        animate
+    updateKnowledge(
+        knowledge
     );
 }
 
+
+/*
+    PHASE D
+
+    READ + READ
+    =
+    NEXT BOOK
+*/
+
+checkForReadMerges();
+
+
+requestAnimationFrame(
+    animate
+);
 
 animate();
 
