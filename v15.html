@@ -1,14 +1,13 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
 
 <meta charset="UTF-8">
 
 <meta name="viewport"
 content="width=device-width,
-initial-scale=1,
-maximum-scale=1,
+initial-scale=1.0,
+maximum-scale=1.0,
 user-scalable=no">
 
 <meta name="description"
@@ -24,10 +23,6 @@ content="#000000">
 
 <style>
 
-/* =================================================
-   BASE
-================================================= */
-
 * {
     box-sizing: border-box;
     margin: 0;
@@ -36,26 +31,16 @@ content="#000000">
 
 html,
 body {
-
     width: 100%;
     height: 100%;
-
     overflow: hidden;
-
     background: #000;
-
     touch-action: none;
 }
 
 body {
-
     position: relative;
-
-    font-family:
-        Arial,
-        sans-serif;
-
-    color: #fff;
+    font-family: Arial, sans-serif;
 }
 
 
@@ -69,7 +54,7 @@ body {
 
     border-radius: 50%;
 
-    background: #fff;
+    background: white;
 
     transform:
         translate(-50%, -50%);
@@ -77,7 +62,7 @@ body {
     pointer-events: none;
 
     box-shadow:
-        0 0 10px #fff,
+        0 0 10px white,
         0 0 25px rgba(255,255,255,0.8),
         0 0 45px rgba(255,255,255,0.4);
 }
@@ -133,8 +118,8 @@ body {
 .memory-one {
 
     box-shadow:
-        0 0 12px #fff,
-        0 0 30px #fff,
+        0 0 12px white,
+        0 0 30px white,
         0 0 55px rgba(255,255,255,0.9);
 }
 
@@ -152,7 +137,7 @@ body {
 
     border-radius: 50%;
 
-    background: #fff;
+    background: white;
 
     transform:
         translate(-50%, -50%);
@@ -162,11 +147,12 @@ body {
     opacity: 0.8;
 
     box-shadow:
-        0 0 6px #fff;
+        0 0 6px white;
 
     animation:
         fadeTrail 1.5s linear forwards;
 }
+
 
 @keyframes fadeTrail {
 
@@ -193,7 +179,7 @@ body {
 
     z-index: 1000;
 
-    color: #fff;
+    color: white;
 
     pointer-events: none;
 
@@ -235,8 +221,7 @@ body {
 
     z-index: 1000;
 
-    padding:
-        10px 16px;
+    padding: 10px 16px;
 
     border:
         1px solid
@@ -247,7 +232,7 @@ body {
     background:
         rgba(0,0,0,0.6);
 
-    color: #fff;
+    color: white;
 
     font-size: 14px;
 
@@ -256,8 +241,7 @@ body {
 
     touch-action: manipulation;
 
-    -webkit-tap-highlight-color:
-        transparent;
+    -webkit-tap-highlight-color: transparent;
 }
 
 
@@ -274,9 +258,9 @@ body {
 
     border-radius: 50%;
 
-    background: #fff;
+    background: white;
 
-    color: #000;
+    color: black;
 
     transform:
         translate(-50%, -50%);
@@ -295,8 +279,8 @@ body {
     letter-spacing: 1px;
 
     box-shadow:
-        0 0 14px #fff,
-        0 0 30px #fff,
+        0 0 14px white,
+        0 0 30px white,
         0 0 55px rgba(255,255,255,0.8);
 
     user-select: none;
@@ -306,8 +290,7 @@ body {
 
     cursor: grab;
 
-    -webkit-tap-highlight-color:
-        transparent;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .knowledge.dragging {
@@ -315,8 +298,8 @@ body {
     cursor: grabbing;
 
     box-shadow:
-        0 0 18px #fff,
-        0 0 38px #fff,
+        0 0 18px white,
+        0 0 38px white,
         0 0 70px rgba(255,255,255,0.95);
 }
 
@@ -347,22 +330,21 @@ body {
             rgba(0,0,0,0.98) 55%
         );
 
-    color: #fff;
+    color: white;
 
     touch-action: auto;
 }
 
 #prologue.open {
+
     display: flex;
 }
 
 .prologue-panel {
 
-    width:
-        min(92vw, 650px);
+    width: min(92vw, 650px);
 
-    min-height:
-        min(70vh, 600px);
+    min-height: min(70vh, 600px);
 
     display: flex;
 
@@ -397,12 +379,12 @@ body {
 
     border-radius: 50%;
 
-    background: #fff;
+    background: white;
 
     margin-bottom: 30px;
 
     box-shadow:
-        0 0 15px #fff,
+        0 0 15px white,
         0 0 40px rgba(255,255,255,0.8),
         0 0 80px rgba(255,255,255,0.3);
 
@@ -438,8 +420,7 @@ body {
 
 #prologueTitle {
 
-    font-size:
-        clamp(26px, 7vw, 46px);
+    font-size: clamp(26px, 7vw, 46px);
 
     line-height: 1.1;
 
@@ -474,8 +455,7 @@ body {
 
     margin-top: 30px;
 
-    padding:
-        13px 24px;
+    padding: 13px 24px;
 
     border:
         1px solid
@@ -483,9 +463,9 @@ body {
 
     border-radius: 24px;
 
-    background: #fff;
+    background: white;
 
-    color: #000;
+    color: black;
 
     font-size: 14px;
 
@@ -495,8 +475,7 @@ body {
 
     touch-action: manipulation;
 
-    -webkit-tap-highlight-color:
-        transparent;
+    -webkit-tap-highlight-color: transparent;
 }
 
 
@@ -530,16 +509,15 @@ body {
 }
 
 #reader.open {
+
     display: flex;
 }
 
 .reader-panel {
 
-    width:
-        min(94vw, 720px);
+    width: min(94vw, 720px);
 
-    height:
-        min(92vh, 820px);
+    height: min(92vh, 820px);
 
     max-height: 100%;
 
@@ -566,11 +544,6 @@ body {
     position: relative;
 }
 
-
-/* =================================================
-   READER HEADER
-================================================= */
-
 .reader-header {
 
     display: flex;
@@ -588,7 +561,7 @@ body {
 
 #readerLabel {
 
-    color: #fff;
+    color: white;
 
     font-size: 12px;
 
@@ -605,24 +578,22 @@ body {
 
     background: #000;
 
-    color: #fff;
+    color: white;
 
     border-radius: 18px;
 
-    padding:
-        8px 14px;
+    padding: 8px 14px;
 
     font-size: 14px;
 
     touch-action: manipulation;
 
-    -webkit-tap-highlight-color:
-        transparent;
+    -webkit-tap-highlight-color: transparent;
 }
 
 #readerTitle {
 
-    color: #fff;
+    color: white;
 
     font-size: 27px;
 
@@ -640,7 +611,7 @@ body {
 
 #readerText {
 
-    color: #fff;
+    color: white;
 
     font-size: 17px;
 
@@ -672,6 +643,7 @@ body {
 }
 
 #readerText::-webkit-scrollbar {
+
     width: 4px;
 }
 
@@ -685,7 +657,7 @@ body {
 
 
 /* =================================================
-   READER HUD
+   BOTTOM RIGHT READER HUD
 ================================================= */
 
 #readerHUD {
@@ -705,8 +677,7 @@ body {
 
     gap: 7px;
 
-    padding:
-        10px 12px;
+    padding: 10px 12px;
 
     border:
         1px solid
@@ -717,12 +688,14 @@ body {
     background:
         rgba(0,0,0,0.82);
 
+    backdrop-filter: blur(8px);
+
     pointer-events: none;
 }
 
 #readerTimer {
 
-    color: #fff;
+    color: white;
 
     font-size: 18px;
 
@@ -734,7 +707,7 @@ body {
 
 #readerPercent {
 
-    color: #fff;
+    color: white;
 
     font-size: 11px;
 
@@ -761,10 +734,12 @@ body {
 
     width: 0;
 
-    background: #fff;
+    background: white;
 
-    transform-origin:
-        left center;
+    transform-origin: left center;
+
+    transition:
+        width 0.1s linear;
 }
 
 
@@ -797,19 +772,18 @@ body {
 
     background: #000;
 
-    color: #fff;
+    color: white;
 
     font-size: 14px;
 
     touch-action: manipulation;
 
-    -webkit-tap-highlight-color:
-        transparent;
+    -webkit-tap-highlight-color: transparent;
 }
 
 #readerStatus {
 
-    color: #fff;
+    color: white;
 
     opacity: 0.55;
 
@@ -834,8 +808,7 @@ body {
 #reset:active,
 #prologueButton:active {
 
-    transform:
-        scale(0.97);
+    transform: scale(0.97);
 }
 
 
@@ -846,6 +819,7 @@ body {
 @media(max-width:480px) {
 
     #reader {
+
         padding: 8px;
     }
 
@@ -861,6 +835,7 @@ body {
     }
 
     #readerTitle {
+
         font-size: 23px;
     }
 
@@ -869,6 +844,22 @@ body {
         font-size: 16px;
 
         line-height: 1.7;
+
+        padding-bottom: 100px;
+    }
+
+    #readerHUD {
+
+        right: 10px;
+
+        bottom: 10px;
+
+        padding: 8px 10px;
+    }
+
+    #readerProgress {
+
+        width: 90px;
     }
 
     .prologue-panel {
@@ -879,17 +870,21 @@ body {
     }
 
     #prologueText {
+
         font-size: 16px;
     }
 }
 
 </style>
-
 </head>
 
 
 <body>
 
+
+<!-- =================================================
+     MAIN HUD
+================================================= -->
 
 <div id="hud">
 
@@ -918,25 +913,19 @@ body {
         <div class="prologue-cican">
 
             <div class="eye left"></div>
-
             <div class="eye right"></div>
 
         </div>
-
 
         <div id="prologueLabel">
             CICAN — PLAY THE BOOK
         </div>
 
-
         <div id="prologueTitle"></div>
-
 
         <div id="prologueText"></div>
 
-
         <div id="prologueStep"></div>
-
 
         <button id="prologueButton">
             CONTINUE
@@ -1016,7 +1005,7 @@ body {
 
 
 <!-- =================================================
-     BOOK LOADER
+     CURRENT BOOK
 ================================================= -->
 
 <script>
@@ -1024,35 +1013,31 @@ body {
 (function () {
 
     const library = {
-
         "1984":
             "books/nineteen-eighty-four.js",
 
         "gatsby":
             "books/the-great-gatsby.js",
-
+        
         "meditations":
-            "books/meditations.js",
+    "books/meditations.js",
 
         "frankenstein":
-            "books/frankenstein.js",
+    "books/frankenstein.js",
 
         "dracula":
-            "books/dracula.js"
-
+    "books/dracula.js"
+        
     };
-
 
     const key =
         window.location.hash
             .substring(1)
             .toLowerCase();
 
-
     const book =
         library[key] ||
         library["1984"];
-
 
     document.write(
         '<script src="' +
@@ -1064,12 +1049,35 @@ body {
 
 </script>
 
-
 <script>
 
-/* =================================================
-   V15 ENGINE
-================================================= */
+/*
+==================================================
+CICAN — PLAY THE BOOK V14
+==================================================
+
+V13 CORE ENGINE PRESERVED.
+
+V14 READER:
+
+The complete book is rendered normally.
+
+The reader viewport moves continuously
+through the book.
+
+There is NO word-by-word display.
+
+There are NO three-word chunks.
+
+There is NO typing effect.
+
+The movement is calculated from real
+elapsed time using requestAnimationFrame.
+
+The book itself is external to this engine.
+
+==================================================
+*/
 
 
 /* =================================================
@@ -1088,29 +1096,15 @@ const MERGE_DISTANCE = 20;
 
 
 /* =================================================
-   BOOK ORDER
-================================================= */
-
-const BOOK_ORDER = [
-
-    "1984",
-
-    "gatsby",
-
-    "meditations",
-
-    "frankenstein",
-
-    "dracula"
-
-];
-
-
-/* =================================================
    PLAYABLE CICAN
 ================================================= */
 
 let ones = [];
+
+
+/* =================================================
+   CONTROL
+================================================= */
 
 let selectedOne = null;
 
@@ -1122,25 +1116,12 @@ let lastTappedOne = null;
 
 
 /* =================================================
-   READ OBJECTS
+   BOOK / READER STATE
 ================================================= */
 
 let readObjects = [];
 
 let currentBook = null;
-
-
-/* =================================================
-   PHASE D
-================================================= */
-
-let progressingToNextBook =
-    false;
-
-
-/* =================================================
-   READER STATE
-================================================= */
 
 let readerAnimation = null;
 
@@ -1166,7 +1147,7 @@ const BOOK_READ =
 
 
 /* =================================================
-   BOOK UI
+   LOAD BOOK UI
 ================================================= */
 
 document.getElementById(
@@ -1174,12 +1155,10 @@ document.getElementById(
 ).textContent =
     BOOK_READ.title;
 
-
 document.getElementById(
     "prologueTitle"
 ).textContent =
     BOOK_READ.title;
-
 
 document.getElementById(
     "readerTitle"
@@ -1204,7 +1183,6 @@ function distance(
     const dy =
         by - ay;
 
-
     return Math.sqrt(
         dx * dx +
         dy * dy
@@ -1224,10 +1202,7 @@ function createOne(
 ) {
 
     const element =
-        document.createElement(
-            "div"
-        );
-
+        document.createElement("div");
 
     element.className =
         "one";
@@ -1241,52 +1216,46 @@ function createOne(
     }
 
 
-    /*
-        CICAN FACE
-    */
-
-    element.innerHTML =
-
-        '<div class="cican-face">' +
-
-            '<div class="eye left"></div>' +
-
-            '<div class="eye right"></div>' +
-
-        '</div>';
-
-
     document.body.appendChild(
         element
     );
 
 
+    const face =
+        document.createElement("div");
+
+    face.className =
+        "cican-face";
+
+    face.innerHTML =
+        '<div class="eye left"></div>' +
+        '<div class="eye right"></div>';
+
+    element.appendChild(face);
+
+
     const one = {
 
         x: px,
-
         y: py,
 
         targetX: px,
-
         targetY: py,
 
         size: startingSize,
 
         element: element,
 
+        isMemory: isMemory,
+
         lastTrailX: px,
-
         lastTrailY: py
-
     };
 
 
     ones.push(one);
 
-
     updateOne(one);
-
 
     return one;
 }
@@ -1301,14 +1270,11 @@ function updateOne(one) {
     one.element.style.left =
         one.x + "px";
 
-
     one.element.style.top =
         one.y + "px";
 
-
     one.element.style.width =
         one.size + "px";
-
 
     one.element.style.height =
         one.size + "px";
@@ -1329,18 +1295,14 @@ function createTrail(
             "div"
         );
 
-
     trail.className =
         "trail";
-
 
     trail.style.left =
         px + "px";
 
-
     trail.style.top =
         py + "px";
-
 
     document.body.appendChild(
         trail
@@ -1348,13 +1310,61 @@ function createTrail(
 
 
     setTimeout(
-        function () {
-
-            trail.remove();
-
-        },
+        () => trail.remove(),
         1500
     );
+}
+
+
+/* =================================================
+   FIND CLOSEST CICAN
+================================================= */
+
+function findClosestOne(
+    px,
+    py
+) {
+
+    if (
+        ones.length === 0
+    ) {
+
+        return null;
+    }
+
+
+    let closest = null;
+
+    let closestDistance =
+        Infinity;
+
+
+    for (
+        const one of ones
+    ) {
+
+        const d =
+            distance(
+                px,
+                py,
+                one.x,
+                one.y
+            );
+
+
+        if (
+            d <
+            closestDistance
+        ) {
+
+            closestDistance = d;
+
+            closest = one;
+        }
+    }
+
+
+    return closest;
 }
 
 
@@ -1376,7 +1386,6 @@ function splitOne(one) {
     newOne.targetX =
         newOne.x;
 
-
     newOne.targetY =
         newOne.y;
 
@@ -1384,14 +1393,12 @@ function splitOne(one) {
     selectedOne =
         one;
 
-
-    growing =
-        false;
+    growing = false;
 }
 
 
 /* =================================================
-   MERGE CICAN
+   MERGE
 ================================================= */
 
 function mergeOnes(
@@ -1399,19 +1406,11 @@ function mergeOnes(
     oneB
 ) {
 
-    const createsKnowledge =
-
-        oneA.size >= MAX_SIZE &&
-
-        oneB.size >= MAX_SIZE;
-
-
     const mergeX =
         (
             oneA.x +
             oneB.x
         ) / 2;
-
 
     const mergeY =
         (
@@ -1428,6 +1427,11 @@ function mergeOnes(
         );
 
 
+    const createsKnowledge =
+        oneA.size >= MAX_SIZE &&
+        oneB.size >= MAX_SIZE;
+
+
     oneA.element.remove();
 
     oneB.element.remove();
@@ -1435,37 +1439,28 @@ function mergeOnes(
 
     ones =
         ones.filter(
-            function (one) {
-
-                return (
-                    one !== oneA &&
-                    one !== oneB
-                );
-
-            }
+            one =>
+                one !== oneA &&
+                one !== oneB
         );
 
 
-    const merged =
+    const mergedOne =
         createOne(
             mergeX,
             mergeY,
             mergedSize,
-            true
+            createsKnowledge
         );
 
 
     selectedOne =
-        merged;
+        mergedOne;
+
+    growing = false;
 
 
-    growing =
-        false;
-
-
-    if (
-        createsKnowledge
-    ) {
+    if (createsKnowledge) {
 
         createKnowledge(
             mergeX,
@@ -1476,10 +1471,10 @@ function mergeOnes(
 
 
 /* =================================================
-   CHECK CICAN MERGES
+   CHECK MERGE
 ================================================= */
 
-function checkMerges() {
+function checkForMerges() {
 
     if (
         ones.length < 2
@@ -1503,7 +1498,6 @@ function checkMerges() {
 
             const oneA =
                 ones[i];
-
 
             const oneB =
                 ones[j];
@@ -1536,7 +1530,7 @@ function checkMerges() {
 
 
 /* =================================================
-   CREATE READ
+   CREATE READ OBJECT
 ================================================= */
 
 function createKnowledge(
@@ -1549,22 +1543,11 @@ function createKnowledge(
             "div"
         );
 
-
     element.className =
         "knowledge";
 
-
     element.textContent =
         "READ";
-
-
-    element.style.left =
-        px + "px";
-
-
-    element.style.top =
-        py + "px";
-
 
     document.body.appendChild(
         element
@@ -1574,11 +1557,9 @@ function createKnowledge(
     const knowledge = {
 
         x: px,
-
         y: py,
 
         targetX: px,
-
         targetY: py,
 
         element: element,
@@ -1590,7 +1571,6 @@ function createKnowledge(
         downX: 0,
 
         downY: 0
-
     };
 
 
@@ -1601,33 +1581,23 @@ function createKnowledge(
 
     element.addEventListener(
         "pointerdown",
-        function (e) {
+        function(e) {
 
             e.preventDefault();
 
             e.stopPropagation();
 
-
             knowledge.dragging =
                 true;
-
 
             knowledge.moved =
                 false;
 
-
             knowledge.downX =
                 e.clientX;
 
-
             knowledge.downY =
                 e.clientY;
-
-
-            element.classList.add(
-                "dragging"
-            );
-
 
             try {
 
@@ -1643,7 +1613,7 @@ function createKnowledge(
 
     element.addEventListener(
         "pointermove",
-        function (e) {
+        function(e) {
 
             if (
                 !knowledge.dragging
@@ -1651,7 +1621,6 @@ function createKnowledge(
 
                 return;
             }
-
 
             e.preventDefault();
 
@@ -1675,111 +1644,76 @@ function createKnowledge(
             knowledge.targetX =
                 e.clientX;
 
-
             knowledge.targetY =
                 e.clientY;
         }
     );
 
 
-    function endPointer(e) {
+    const end =
+        function(e) {
 
-        if (
-            !knowledge.dragging
-        ) {
+            if (
+                !knowledge.dragging
+            ) {
 
-            return;
-        }
-
-
-        e.preventDefault();
-
-        e.stopPropagation();
-
-
-        knowledge.dragging =
-            false;
-
-
-        element.classList.remove(
-            "dragging"
-        );
-
-
-        if (
-            !knowledge.moved
-        ) {
-
-            openPrologue();
-        }
-    }
-
-
-    element.addEventListener(
-        "pointerup",
-        endPointer
-    );
-
-
-    element.addEventListener(
-        "pointercancel",
-        function (e) {
+                return;
+            }
 
             e.preventDefault();
 
             e.stopPropagation();
 
-
             knowledge.dragging =
                 false;
 
 
-            element.classList.remove(
-                "dragging"
-            );
+            if (
+                !knowledge.moved
+            ) {
+
+                openPrologue();
+            }
+        };
+
+
+    element.addEventListener(
+        "pointerup",
+        end
+    );
+
+
+    element.addEventListener(
+        "pointercancel",
+        function(e) {
+
+            e.stopPropagation();
+
+            knowledge.dragging =
+                false;
         }
+    );
+
+
+    updateKnowledge(
+        knowledge
     );
 }
 
 
 /* =================================================
-   UPDATE READ
+   UPDATE READ OBJECT
 ================================================= */
 
 function updateKnowledge(
     knowledge
 ) {
 
-    const half =
-        34;
-
-
-    knowledge.targetX =
-        Math.max(
-            half,
-            Math.min(
-                window.innerWidth - half,
-                knowledge.targetX
-            )
-        );
-
-
-    knowledge.targetY =
-        Math.max(
-            half,
-            Math.min(
-                window.innerHeight - half,
-                knowledge.targetY
-            )
-        );
-
-
     knowledge.x +=
         (
             knowledge.targetX -
             knowledge.x
         ) * 0.10;
-
 
     knowledge.y +=
         (
@@ -1788,251 +1722,34 @@ function updateKnowledge(
         ) * 0.10;
 
 
+    const r = 34;
+
+
+    knowledge.x =
+        Math.max(
+            r,
+            Math.min(
+                window.innerWidth - r,
+                knowledge.x
+            )
+        );
+
+
+    knowledge.y =
+        Math.max(
+            r,
+            Math.min(
+                window.innerHeight - r,
+                knowledge.y
+            )
+        );
+
+
     knowledge.element.style.left =
         knowledge.x + "px";
 
-
     knowledge.element.style.top =
         knowledge.y + "px";
-}
-
-
-/* =================================================
-   CURRENT BOOK
-================================================= */
-
-function getCurrentBookKey() {
-
-    const key =
-        window.location.hash
-            .substring(1)
-            .toLowerCase();
-
-
-    if (
-        BOOK_ORDER.includes(key)
-    ) {
-
-        return key;
-    }
-
-
-    return "1984";
-}
-
-
-/* =================================================
-   NEXT BOOK
-================================================= */
-
-function getNextBookKey() {
-
-    const currentKey =
-        getCurrentBookKey();
-
-
-    const currentIndex =
-        BOOK_ORDER.indexOf(
-            currentKey
-        );
-
-
-    if (
-        currentIndex < 0
-    ) {
-
-        return null;
-    }
-
-
-    if (
-        currentIndex >=
-        BOOK_ORDER.length - 1
-    ) {
-
-        return null;
-    }
-
-
-    return BOOK_ORDER[
-        currentIndex + 1
-    ];
-}
-
-
-/* =================================================
-   READ + READ
-================================================= */
-
-function checkForReadMerges() {
-
-    if (
-        readObjects.length < 2
-    ) {
-
-        return;
-    }
-
-
-    if (
-        progressingToNextBook
-    ) {
-
-        return;
-    }
-
-
-    for (
-        let i = 0;
-        i < readObjects.length;
-        i++
-    ) {
-
-        for (
-            let j = i + 1;
-            j < readObjects.length;
-            j++
-        ) {
-
-            const readA =
-                readObjects[i];
-
-
-            const readB =
-                readObjects[j];
-
-
-            const d =
-                distance(
-                    readA.x,
-                    readA.y,
-                    readB.x,
-                    readB.y
-                );
-
-
-            if (
-                d <=
-                MERGE_DISTANCE
-            ) {
-
-                mergeReadObjects(
-                    readA,
-                    readB
-                );
-
-                return;
-            }
-        }
-    }
-}
-
-
-/* =================================================
-   MERGE READ OBJECTS
-================================================= */
-
-function mergeReadObjects(
-    readA,
-    readB
-) {
-
-    const nextBook =
-        getNextBookKey();
-
-
-    /*
-        DRACULA IS THE LAST BOOK.
-    */
-
-    if (
-        !nextBook
-    ) {
-
-        return;
-    }
-
-
-    progressingToNextBook =
-        true;
-
-
-    const mergeX =
-        (
-            readA.x +
-            readB.x
-        ) / 2;
-
-
-    const mergeY =
-        (
-            readA.y +
-            readB.y
-        ) / 2;
-
-
-    readA.element.remove();
-
-    readB.element.remove();
-
-
-    readObjects =
-        readObjects.filter(
-            function (read) {
-
-                return (
-                    read !== readA &&
-                    read !== readB
-                );
-
-            }
-        );
-
-
-    const mergedElement =
-        document.createElement(
-            "div"
-        );
-
-
-    mergedElement.className =
-        "knowledge";
-
-
-    mergedElement.textContent =
-        "READ";
-
-
-    mergedElement.style.left =
-        mergeX + "px";
-
-
-    mergedElement.style.top =
-        mergeY + "px";
-
-
-    mergedElement.style.transform =
-        "translate(-50%, -50%) scale(1.25)";
-
-
-    document.body.appendChild(
-        mergedElement
-    );
-
-
-    setTimeout(
-        function () {
-
-            mergedElement.remove();
-
-
-            window.location.href =
-                "v15.html#" +
-                nextBook;
-
-        },
-        700
-    );
 }
 
 
@@ -2041,96 +1758,35 @@ function mergeReadObjects(
 ================================================= */
 
 function pointerDown(
-    x,
-    y
+    px,
+    py
 ) {
 
-    if (
-        document
-            .getElementById(
-                "reader"
-            )
-            .classList
-            .contains("open")
-    ) {
-
-        return;
-    }
+    const now =
+        Date.now();
 
 
-    if (
-        document
-            .getElementById(
-                "prologue"
-            )
-            .classList
-            .contains("open")
-    ) {
-
-        return;
-    }
-
-
-    let closest =
-        null;
-
-
-    let closestDistance =
-        Infinity;
-
-
-    for (
-        const one of ones
-    ) {
-
-        const d =
-            distance(
-                x,
-                y,
-                one.x,
-                one.y
-            );
-
-
-        if (
-            d <
-            one.size / 2 &&
-            d <
-            closestDistance
-        ) {
-
-            closest =
-                one;
-
-
-            closestDistance =
-                d;
-        }
-    }
+    const closest =
+        findClosestOne(
+            px,
+            py
+        );
 
 
     if (!closest) {
 
-        growing =
-            false;
+        lastTap = 0;
+
+        lastTappedOne = null;
 
         return;
     }
 
 
-    selectedOne =
-        closest;
-
-
-    const now =
-        performance.now();
-
-
     if (
-        closest ===
-        lastTappedOne &&
-        now - lastTap <=
-        DOUBLE_TAP_TIME
+        now - lastTap <
+        DOUBLE_TAP_TIME &&
+        lastTappedOne === closest
     ) {
 
         splitOne(
@@ -2138,40 +1794,32 @@ function pointerDown(
         );
 
 
-        lastTap =
-            0;
+        lastTap = 0;
 
-
-        lastTappedOne =
-            null;
-
-
-        growing =
-            false;
-
+        lastTappedOne = null;
 
         return;
     }
 
 
-    lastTap =
-        now;
-
+    lastTap = now;
 
     lastTappedOne =
         closest;
 
 
-    growing =
-        true;
+    selectedOne =
+        closest;
 
 
-    closest.targetX =
-        x;
+    growing = true;
 
 
-    closest.targetY =
-        y;
+    selectedOne.targetX =
+        px;
+
+    selectedOne.targetY =
+        py;
 }
 
 
@@ -2180,22 +1828,27 @@ function pointerDown(
 ================================================= */
 
 function pointerMove(
-    x,
-    y
+    px,
+    py
 ) {
 
-    if (
-        selectedOne &&
-        growing
-    ) {
+    if (!growing) {
 
-        selectedOne.targetX =
-            x;
-
-
-        selectedOne.targetY =
-            y;
+        return;
     }
+
+
+    if (!selectedOne) {
+
+        return;
+    }
+
+
+    selectedOne.targetX =
+        px;
+
+    selectedOne.targetY =
+        py;
 }
 
 
@@ -2205,52 +1858,23 @@ function pointerMove(
 
 function pointerUp() {
 
-    growing =
-        false;
+    growing = false;
 }
 
 
 /* =================================================
-   GLOBAL POINTER EVENTS
+   POINTER EVENTS
 ================================================= */
 
 document.addEventListener(
     "pointerdown",
-    function (e) {
+    function(e) {
 
         if (
-            e.target.closest(
-                "#reader"
-            )
-        ) {
-
-            return;
-        }
-
-
-        if (
-            e.target.closest(
-                "#prologue"
-            )
-        ) {
-
-            return;
-        }
-
-
-        if (
-            e.target.closest(
-                ".knowledge"
-            )
-        ) {
-
-            return;
-        }
-
-
-        if (
-            e.target.id ===
-            "reset"
+            e.target.closest("#reader") ||
+            e.target.closest("#prologue") ||
+            e.target.closest(".knowledge") ||
+            e.target.id === "reset"
         ) {
 
             return;
@@ -2267,41 +1891,13 @@ document.addEventListener(
 
 document.addEventListener(
     "pointermove",
-    function (e) {
+    function(e) {
 
         if (
-            e.target.closest(
-                "#reader"
-            )
-        ) {
-
-            return;
-        }
-
-
-        if (
-            e.target.closest(
-                "#prologue"
-            )
-        ) {
-
-            return;
-        }
-
-
-        if (
-            e.target.closest(
-                ".knowledge"
-            )
-        ) {
-
-            return;
-        }
-
-
-        if (
-            e.target.id ===
-            "reset"
+            e.target.closest("#reader") ||
+            e.target.closest("#prologue") ||
+            e.target.closest(".knowledge") ||
+            e.target.id === "reset"
         ) {
 
             return;
@@ -2318,13 +1914,37 @@ document.addEventListener(
 
 document.addEventListener(
     "pointerup",
-    pointerUp
+    function(e) {
+
+        if (
+            e.target.closest("#reader") ||
+            e.target.closest("#prologue") ||
+            e.target.closest(".knowledge")
+        ) {
+
+            return;
+        }
+
+        pointerUp();
+    }
 );
 
 
 document.addEventListener(
     "pointercancel",
-    pointerUp
+    function(e) {
+
+        if (
+            e.target.closest("#reader") ||
+            e.target.closest("#prologue") ||
+            e.target.closest(".knowledge")
+        ) {
+
+            return;
+        }
+
+        pointerUp();
+    }
 );
 
 
@@ -2337,18 +1957,15 @@ const prologue =
         "prologue"
     );
 
-
 const prologueText =
     document.getElementById(
         "prologueText"
     );
 
-
 const prologueStep =
     document.getElementById(
         "prologueStep"
     );
-
 
 const prologueButton =
     document.getElementById(
@@ -2360,20 +1977,16 @@ const prologueScenes =
     BOOK_READ.prologueScenes;
 
 
-let prologueIndex =
-    0;
+let prologueIndex = 0;
 
 
 function openPrologue() {
 
-    prologueIndex =
-        0;
-
+    prologueIndex = 0;
 
     prologue.classList.add(
         "open"
     );
-
 
     showPrologueScene();
 }
@@ -2390,7 +2003,6 @@ function showPrologueScene() {
     prologueText.textContent =
         scene.text;
 
-
     prologueStep.textContent =
         (
             prologueIndex + 1
@@ -2398,23 +2010,14 @@ function showPrologueScene() {
         " / " +
         prologueScenes.length;
 
-
     prologueButton.textContent =
         scene.button;
 }
 
 
-function closePrologue() {
-
-    prologue.classList.remove(
-        "open"
-    );
-}
-
-
 prologueButton.addEventListener(
     "pointerdown",
-    function (e) {
+    function(e) {
 
         e.preventDefault();
 
@@ -2428,9 +2031,7 @@ prologueButton.addEventListener(
 
             prologueIndex++;
 
-
             showPrologueScene();
-
 
             return;
         }
@@ -2443,6 +2044,14 @@ prologueButton.addEventListener(
 );
 
 
+function closePrologue() {
+
+    prologue.classList.remove(
+        "open"
+    );
+}
+
+
 /* =================================================
    READER ELEMENTS
 ================================================= */
@@ -2452,24 +2061,20 @@ const reader =
         "reader"
     );
 
-
 const readerText =
     document.getElementById(
         "readerText"
     );
-
 
 const readerPause =
     document.getElementById(
         "readerPause"
     );
 
-
 const readerClose =
     document.getElementById(
         "readerClose"
     );
-
 
 const readerStatus =
     document.getElementById(
@@ -2520,25 +2125,26 @@ function updateReaderUI() {
 
     const maxScroll =
         Math.max(
-            1,
+            0,
             readerText.scrollHeight -
             readerText.clientHeight
         );
 
 
     const progress =
-        Math.min(
+        maxScroll > 0
+        ? Math.min(
             1,
-            Math.max(
-                0,
-                readerScrollPosition /
-                maxScroll
-            )
-        );
+            readerText.scrollTop /
+            maxScroll
+        )
+        : 0;
 
 
     const percent =
-        progress * 100;
+        Math.floor(
+            progress * 100
+        );
 
 
     document.getElementById(
@@ -2552,17 +2158,13 @@ function updateReaderUI() {
     document.getElementById(
         "readerPercent"
     ).textContent =
-        Math.floor(
-            percent
-        ) +
-        "%";
+        percent + "%";
 
 
     document.getElementById(
         "readerProgressBar"
     ).style.width =
-        percent +
-        "%";
+        percent + "%";
 }
 
 
@@ -2573,14 +2175,12 @@ function updateReaderUI() {
 function stopReaderAnimation() {
 
     if (
-        readerAnimation !==
-        null
+        readerAnimation !== null
     ) {
 
         cancelAnimationFrame(
             readerAnimation
         );
-
 
         readerAnimation =
             null;
@@ -2617,6 +2217,14 @@ function openReader() {
         0;
 
 
+    /*
+        RENDER THE ENTIRE BOOK.
+
+        No word-by-word progression.
+        No chunks.
+        No typing effect.
+    */
+
     readerText.textContent =
         currentBook.text;
 
@@ -2638,16 +2246,20 @@ function openReader() {
     );
 
 
+    /*
+        Allow the browser to calculate
+        the complete text height before
+        starting the fluid movement.
+    */
+
     requestAnimationFrame(
-        function () {
+        function() {
 
             readerScrollPosition =
                 0;
 
-
             readerLastTime =
                 performance.now();
-
 
             updateReaderUI();
 
@@ -2665,9 +2277,7 @@ function openReader() {
    FLUID AUTO READER
 ================================================= */
 
-function fluidAutoReader(
-    now
-) {
+function fluidAutoReader(now) {
 
     if (
         readerComplete
@@ -2676,6 +2286,10 @@ function fluidAutoReader(
         return;
     }
 
+
+    /*
+        Calculate real frame time.
+    */
 
     const delta =
         Math.min(
@@ -2691,6 +2305,10 @@ function fluidAutoReader(
         now;
 
 
+    /*
+        PAUSED
+    */
+
     if (
         readerPaused
     ) {
@@ -2699,7 +2317,6 @@ function fluidAutoReader(
             requestAnimationFrame(
                 fluidAutoReader
             );
-
 
         return;
     }
@@ -2713,6 +2330,10 @@ function fluidAutoReader(
         );
 
 
+    /*
+        Nothing to scroll.
+    */
+
     if (
         maxScroll <= 0
     ) {
@@ -2722,6 +2343,13 @@ function fluidAutoReader(
         return;
     }
 
+
+    /*
+        CONSTANT FLUID SPEED.
+
+        Complete scroll distance is
+        divided across exactly 900 seconds.
+    */
 
     const pixelsPerSecond =
         maxScroll /
@@ -2744,6 +2372,11 @@ function fluidAutoReader(
         readerScrollPosition;
 
 
+    /*
+        Calculate progress directly
+        from physical reading position.
+    */
+
     const progress =
         readerScrollPosition /
         maxScroll;
@@ -2752,13 +2385,19 @@ function fluidAutoReader(
     readerSeconds =
         Math.max(
             0,
-            TARGET_READING_SECONDS *
-            (1 - progress)
+            (
+                TARGET_READING_SECONDS *
+                (1 - progress)
+            )
         );
 
 
     updateReaderUI();
 
+
+    /*
+        END
+    */
 
     if (
         readerScrollPosition >=
@@ -2770,6 +2409,10 @@ function fluidAutoReader(
         return;
     }
 
+
+    /*
+        CONTINUE EVERY FRAME
+    */
 
     readerAnimation =
         requestAnimationFrame(
@@ -2798,6 +2441,10 @@ function finishReader() {
 
     stopReaderAnimation();
 
+
+    /*
+        Put reader exactly at the end.
+    */
 
     readerText.scrollTop =
         readerText.scrollHeight;
@@ -2848,7 +2495,7 @@ function finishReader() {
 
 readerPause.addEventListener(
     "pointerdown",
-    function (e) {
+    function(e) {
 
         e.preventDefault();
 
@@ -2863,6 +2510,10 @@ readerPause.addEventListener(
         }
 
 
+        /*
+            COMPLETE → READ AGAIN
+        */
+
         if (
             readerComplete
         ) {
@@ -2873,40 +2524,48 @@ readerPause.addEventListener(
         }
 
 
+        /*
+            PAUSE
+        */
+
         if (
-            readerPaused
+            !readerPaused
         ) {
 
             readerPaused =
-                false;
-
-
-            readerLastTime =
-                performance.now();
+                true;
 
 
             readerPause.textContent =
-                "PAUSE";
+                "RESUME";
 
 
             readerStatus.textContent =
-                "AUTO-READING";
+                "PAUSED";
 
 
             return;
         }
 
 
+        /*
+            RESUME
+        */
+
         readerPaused =
-            true;
+            false;
+
+
+        readerLastTime =
+            performance.now();
 
 
         readerPause.textContent =
-            "RESUME";
+            "PAUSE";
 
 
         readerStatus.textContent =
-            "PAUSED";
+            "AUTO-READING";
     }
 );
 
@@ -2959,22 +2618,102 @@ function closeReader() {
 
     readerStatus.textContent =
         "AUTO-READING";
-
-
-    updateReaderUI();
 }
 
 
+/* =================================================
+   READER CLOSE BUTTON
+================================================= */
+
 readerClose.addEventListener(
     "pointerdown",
-    function (e) {
+    function(e) {
 
         e.preventDefault();
 
         e.stopPropagation();
 
-
         closeReader();
+    }
+);
+
+
+/* =================================================
+   READER EVENT PROTECTION
+================================================= */
+
+reader.addEventListener(
+    "pointerdown",
+    function(e) {
+
+        e.stopPropagation();
+    }
+);
+
+
+reader.addEventListener(
+    "pointermove",
+    function(e) {
+
+        e.stopPropagation();
+    }
+);
+
+
+reader.addEventListener(
+    "pointerup",
+    function(e) {
+
+        e.stopPropagation();
+    }
+);
+
+
+reader.addEventListener(
+    "pointercancel",
+    function(e) {
+
+        e.stopPropagation();
+    }
+);
+
+
+/* =================================================
+   ESCAPE
+================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(e) {
+
+        if (
+            e.key !== "Escape"
+        ) {
+
+            return;
+        }
+
+
+        if (
+            reader.classList.contains(
+                "open"
+            )
+        ) {
+
+            closeReader();
+
+            return;
+        }
+
+
+        if (
+            prologue.classList.contains(
+                "open"
+            )
+        ) {
+
+            closePrologue();
+        }
     }
 );
 
@@ -2990,6 +2729,10 @@ function resetGame() {
     closePrologue();
 
 
+    /*
+        REMOVE CICAN
+    */
+
     for (
         const one of ones
     ) {
@@ -3000,6 +2743,10 @@ function resetGame() {
 
     ones = [];
 
+
+    /*
+        REMOVE READ OBJECTS
+    */
 
     for (
         const knowledge of readObjects
@@ -3012,18 +2759,23 @@ function resetGame() {
     readObjects = [];
 
 
+    /*
+        REMOVE TRAILS
+    */
+
     document
         .querySelectorAll(
             ".trail"
         )
         .forEach(
-            function (element) {
-
-                element.remove();
-
-            }
+            element =>
+                element.remove()
         );
 
+
+    /*
+        RESET CONTROL
+    */
 
     selectedOne =
         createOne(
@@ -3034,20 +2786,11 @@ function resetGame() {
         );
 
 
-    growing =
-        false;
+    growing = false;
 
+    lastTap = 0;
 
-    lastTap =
-        0;
-
-
-    lastTappedOne =
-        null;
-
-
-    progressingToNextBook =
-        false;
+    lastTappedOne = null;
 }
 
 
@@ -3055,16 +2798,19 @@ function resetGame() {
    RESET BUTTON
 ================================================= */
 
-document.getElementById(
-    "reset"
-).addEventListener(
+const resetButton =
+    document.getElementById(
+        "reset"
+    );
+
+
+resetButton.addEventListener(
     "pointerdown",
-    function (e) {
+    function(e) {
 
         e.preventDefault();
 
         e.stopPropagation();
-
 
         resetGame();
     }
@@ -3072,7 +2818,7 @@ document.getElementById(
 
 
 /* =================================================
-   START CICAN
+   START
 ================================================= */
 
 selectedOne =
@@ -3090,17 +2836,13 @@ selectedOne =
 
 function animate() {
 
-
     /*
-        V13 MOVEMENT
+        ORIGINAL V13 FLUID MOVEMENT.
 
-        x +=
-        (targetX - x)
-        * 0.10
+        x += (targetX - x) * 0.10
+        y += (targetY - y) * 0.10
 
-        y +=
-        (targetY - y)
-        * 0.10
+        PRESERVED.
     */
 
     for (
@@ -3122,7 +2864,8 @@ function animate() {
 
 
         /*
-            GROWTH
+            ONLY SELECTED CICAN
+            GROWS.
         */
 
         if (
@@ -3130,8 +2873,7 @@ function animate() {
             selectedOne === one
         ) {
 
-            one.size +=
-                0.5;
+            one.size += 0.5;
 
 
             if (
@@ -3146,7 +2888,7 @@ function animate() {
 
 
         /*
-            TRAIL
+            TRAIL.
         */
 
         if (
@@ -3168,29 +2910,26 @@ function animate() {
             one.lastTrailX =
                 one.x;
 
-
             one.lastTrailY =
                 one.y;
         }
 
 
-        updateOne(
-            one
-        );
+        updateOne(one);
     }
 
 
     /*
-        FULL + FULL
-        =
-        READ
+        MERGE IS THE ONLY
+        INTERACTION BETWEEN
+        TWO CICAN.
     */
 
-    checkMerges();
+    checkForMerges();
 
 
     /*
-        UPDATE READ
+        UPDATE READ OBJECTS.
     */
 
     for (
@@ -3203,15 +2942,6 @@ function animate() {
     }
 
 
-    /*
-        READ + READ
-        =
-        NEXT BOOK
-    */
-
-    checkForReadMerges();
-
-
     requestAnimationFrame(
         animate
     );
@@ -3220,8 +2950,8 @@ function animate() {
 
 animate();
 
+
 </script>
 
 </body>
-
 </html>
