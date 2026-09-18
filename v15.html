@@ -1005,46 +1005,41 @@ body {
 
 
 <!-- =================================================
-     BOOK LIBRARY
+     CURRENT BOOK
 ================================================= -->
 
 <script>
 
 (function () {
 
-    const BOOK_LIBRARY = {
-
+    const library = {
         "1984":
             "books/nineteen-eighty-four.js",
 
         "gatsby":
             "books/the-great-gatsby.js"
-
     };
 
-
-    const requestedBook =
+    const key =
         window.location.hash
-            .replace("#", "")
+            .substring(1)
             .toLowerCase();
 
-
-    const selectedBook =
-        BOOK_LIBRARY[
-            requestedBook
-        ] ||
-        BOOK_LIBRARY["1984"];
-
+    const book =
+        library[key] ||
+        library["1984"];
 
     document.write(
         '<script src="' +
-        selectedBook +
+        book +
         '"><\/script>'
     );
 
 })();
 
 </script>
+
+
 
 /*
 ==================================================
