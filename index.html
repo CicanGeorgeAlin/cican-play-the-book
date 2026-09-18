@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
@@ -9,15 +10,21 @@
     content="width=device-width, initial-scale=1.0"
 >
 
+<title>
+CICAN — PLAY THE BOOK
+</title>
+
 <meta
     name="description"
     content="CICAN — PLAY THE BOOK. A free interactive way to understand books."
 >
 
-<!-- =====================================================
-     SOCIAL MEDIA PREVIEW
-===================================================== -->
+<meta
+    name="theme-color"
+    content="#000000"
+>
 
+<!-- SOCIAL PREVIEW -->
 <meta
     property="og:title"
     content="CICAN — PLAY THE BOOK"
@@ -58,171 +65,147 @@
     content="https://cicangeorgealin.github.io/cican-play-the-book/cican-preview.png"
 >
 
-<title>CICAN — PLAY THE BOOK</title>
 
 <style>
 
 * {
     box-sizing: border-box;
-}
-
-html,
-body {
     margin: 0;
     padding: 0;
+}
 
-    width: 100%;
-    min-height: 100%;
+html {
+    background: #000;
+    scroll-behavior: smooth;
+}
 
+body {
     background: #000;
     color: #fff;
-
     font-family:
         Arial,
         Helvetica,
         sans-serif;
 
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    min-height: 100vh;
 }
 
 
-/* =====================================================
-   PAGE
-===================================================== */
+/* =========================================
+   BACKGROUND CICAN TEXT
+========================================= */
 
-.page {
-
-    position: relative;
-
-    width: 100vw;
-    height: 100vh;
-
-    min-height: 600px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    background: #000;
+.background {
+    position: fixed;
+    inset: 0;
 
     overflow: hidden;
-}
-
-
-/* =====================================================
-   FLOWING CICAN BACKGROUND
-===================================================== */
-
-.flow {
-
-    position: absolute;
-
-    white-space: nowrap;
-
-    color: #fff;
-
-    font-weight: 900;
-
-    letter-spacing: -5px;
-
-    opacity: .035;
 
     pointer-events: none;
 
-    user-select: none;
+    z-index: 0;
+
+    opacity: 0.055;
+}
+
+.background-track {
+    position: absolute;
+
+    width: max-content;
+
+    white-space: nowrap;
+
+    font-size: clamp(
+        90px,
+        15vw,
+        220px
+    );
+
+    font-weight: 900;
+
+    letter-spacing: -0.08em;
+
+    line-height: 0.8;
+
+    color: #fff;
 
     animation:
-        moveFlow
+        backgroundFlow
+        55s
         linear
         infinite;
 }
 
-
-.flow-1 {
-
-    top: 5%;
-
-    left: -40%;
-
-    font-size: 100px;
-
-    animation-duration: 32s;
+.background-track:nth-child(1) {
+    top: 8%;
 }
 
+.background-track:nth-child(2) {
+    top: 38%;
 
-.flow-2 {
+    animation-duration: 70s;
 
-    top: 27%;
-
-    left: -70%;
-
-    font-size: 55px;
-
-    animation-duration: 24s;
-
-    animation-delay: -9s;
-
-    opacity: .025;
+    animation-direction: reverse;
 }
 
+.background-track:nth-child(3) {
+    top: 68%;
 
-.flow-3 {
-
-    top: 52%;
-
-    left: -50%;
-
-    font-size: 150px;
-
-    animation-duration: 38s;
-
-    animation-delay: -20s;
-
-    opacity: .025;
+    animation-duration: 62s;
 }
 
-
-.flow-4 {
-
-    top: 77%;
-
-    left: -60%;
-
-    font-size: 70px;
-
-    animation-duration: 27s;
-
-    animation-delay: -14s;
-
-    opacity: .03;
-}
-
-
-@keyframes moveFlow {
+@keyframes backgroundFlow {
 
     from {
-        transform:
-            translateX(0);
+        transform: translateX(-30%);
     }
 
     to {
-        transform:
-            translateX(180vw);
+        transform: translateX(0%);
     }
 
 }
 
 
-/* =====================================================
-   MAIN
-===================================================== */
+/* =========================================
+   MAIN PAGE
+========================================= */
 
-.content {
-
+.page {
     position: relative;
 
-    z-index: 10;
+    z-index: 1;
+
+    width: 100%;
+
+    min-height: 100vh;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    padding:
+        45px
+        22px
+        55px;
+}
+
+
+/* =========================================
+   HERO
+========================================= */
+
+.hero {
+    width: 100%;
+
+    max-width: 900px;
+
+    min-height: 570px;
 
     display: flex;
 
@@ -233,384 +216,609 @@ body {
     justify-content: center;
 
     text-align: center;
-
-    width: 100%;
-
-    padding: 30px;
 }
 
 
-/* =====================================================
-   MAIN CICAN
-===================================================== */
+/* =========================================
+   CICAN
+========================================= */
+
+.cican-link {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-decoration: none;
+
+    color: #fff;
+
+    cursor: pointer;
+
+    margin-bottom: 28px;
+}
 
 .cican {
+    position: relative;
 
-    width: 145px;
-    height: 145px;
+    width: 150px;
+
+    height: 150px;
 
     border-radius: 50%;
 
     background: #fff;
 
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
     box-shadow:
-        0 0 12px #fff,
-        0 0 35px rgba(255,255,255,.95),
-        0 0 75px rgba(255,255,255,.55),
-        0 0 130px rgba(255,255,255,.2);
+        0 0 25px rgba(255,255,255,0.85),
+        0 0 60px rgba(255,255,255,0.45),
+        0 0 110px rgba(255,255,255,0.18);
 
     animation:
         breathe
-        5s
+        4s
         ease-in-out
         infinite;
-
-    cursor: pointer;
-
-    transition:
-        transform .25s ease;
 }
-
-
-.cican:hover {
-
-    transform:
-        scale(1.06);
-}
-
 
 @keyframes breathe {
 
     0%,
     100% {
-
         transform:
             translateY(0)
             scale(1);
-
     }
 
     50% {
-
         transform:
-            translateY(-10px)
+            translateY(-8px)
             scale(1.025);
-
     }
 
 }
 
 
-/* =====================================================
+/* =========================================
    EYES
-===================================================== */
-
-.eyes {
-
-    display: flex;
-
-    gap: 21px;
-}
-
+========================================= */
 
 .eye {
+    position: absolute;
 
-    width: 16px;
-    height: 29px;
+    width: 19px;
+
+    height: 27px;
 
     background: #000;
 
     border-radius: 50%;
+
+    top: 57px;
+}
+
+.eye.left {
+    left: 43px;
+}
+
+.eye.right {
+    right: 43px;
 }
 
 
-/* =====================================================
+/* =========================================
    BRAND
-===================================================== */
+========================================= */
 
 .brand {
-
-    margin-top: 32px;
-
     font-size:
-        clamp(58px, 14vw, 110px);
+        clamp(
+            54px,
+            10vw,
+            92px
+        );
 
-    line-height: .9;
+    line-height: 0.9;
 
     font-weight: 900;
 
     letter-spacing:
-        -6px;
+        -0.07em;
+
+    margin-left:
+        -0.07em;
 
     color: #fff;
-
-    text-shadow:
-        0 0 10px #fff,
-        0 0 30px rgba(255,255,255,.75),
-        0 0 65px rgba(255,255,255,.3);
 }
 
-
-/* =====================================================
-   PLAY THE BOOK
-===================================================== */
-
-.play-title {
-
-    margin-top: 24px;
+.subtitle {
+    margin-top: 19px;
 
     font-size:
-        clamp(18px, 4vw, 27px);
+        clamp(
+            17px,
+            3vw,
+            25px
+        );
 
     font-weight: 700;
 
     letter-spacing:
-        3px;
+        0.22em;
+
+    text-transform:
+        uppercase;
 
     color: #fff;
 }
 
+.minutes {
+    margin-top: 18px;
 
-/* =====================================================
-   15 MINUTES
-===================================================== */
+    font-size: 13px;
 
-.time {
-
-    margin-top: 12px;
-
-    font-size:
-        14px;
+    font-weight: 700;
 
     letter-spacing:
-        4px;
+        0.34em;
 
     color:
-        #777;
+        rgba(
+            255,
+            255,
+            255,
+            0.55
+        );
+
+    text-transform:
+        uppercase;
 }
 
 
-/* =====================================================
+/* =========================================
    PLAY BUTTON
-===================================================== */
+========================================= */
 
 .play-button {
+    display: inline-flex;
 
-    margin-top: 32px;
+    align-items: center;
 
-    min-width: 150px;
+    justify-content: center;
+
+    margin-top: 38px;
+
+    min-width: 170px;
+
+    min-height: 58px;
 
     padding:
-        15px 32px;
+        0
+        28px;
 
     border:
-        1px solid #fff;
+        1px solid
+        rgba(
+            255,
+            255,
+            255,
+            0.65
+        );
 
-    border-radius:
-        50px;
+    border-radius: 100px;
 
-    background:
-        #fff;
+    background: #fff;
 
-    color:
-        #000;
+    color: #000;
 
-    font-size:
-        14px;
+    text-decoration: none;
 
-    font-weight:
-        800;
+    font-size: 14px;
+
+    font-weight: 900;
 
     letter-spacing:
-        2px;
-
-    cursor:
-        pointer;
-
-    box-shadow:
-        0 0 20px rgba(255,255,255,.35);
+        0.22em;
 
     transition:
-        transform .2s ease,
-        box-shadow .2s ease;
-
-    text-decoration:
-        none;
-
-    display:
-        inline-block;
+        transform
+        0.2s
+        ease,
+        box-shadow
+        0.2s
+        ease;
 }
-
 
 .play-button:hover {
 
     transform:
-        scale(1.06);
+        scale(1.045);
 
     box-shadow:
-        0 0 35px rgba(255,255,255,.8);
+        0 0 35px
+        rgba(
+            255,
+            255,
+            255,
+            0.35
+        );
 }
-
 
 .play-button:active {
 
     transform:
-        scale(.96);
+        scale(0.97);
 }
 
 
-/* =====================================================
-   BOOK
-===================================================== */
+/* =========================================
+   LIBRARY
+========================================= */
+
+.library {
+    width: 100%;
+
+    max-width: 760px;
+
+    padding-top: 35px;
+
+    padding-bottom: 25px;
+}
+
+.library-title {
+    text-align: center;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing:
+        0.35em;
+
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            0.4
+        );
+
+    margin-bottom: 18px;
+
+    text-transform:
+        uppercase;
+}
+
+
+/* =========================================
+   BOOK LIST
+========================================= */
+
+.books {
+    width: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+}
 
 .book {
+    display: grid;
 
-    margin-top: 42px;
+    grid-template-columns:
+        48px
+        1fr
+        auto;
 
-    opacity: .8;
+    align-items: center;
+
+    min-height: 72px;
+
+    padding:
+        10px
+        18px;
+
+    border:
+        1px solid
+        rgba(
+            255,
+            255,
+            255,
+            0.10
+        );
+
+    border-radius: 14px;
+
+    text-decoration: none;
+
+    color: #fff;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.025
+        );
 
     transition:
-        opacity .2s ease;
+        background
+        0.2s
+        ease,
+        border-color
+        0.2s
+        ease,
+        transform
+        0.2s
+        ease;
 }
-
 
 .book:hover {
 
-    opacity: 1;
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.075
+        );
+
+    border-color:
+        rgba(
+            255,
+            255,
+            255,
+            0.28
+        );
+
+    transform:
+        translateY(-2px);
 }
 
+.book-number {
+    font-size: 11px;
 
-.book-name {
-
-    font-size:
-        17px;
-
-    font-weight:
-        700;
+    font-weight: 700;
 
     letter-spacing:
-        .5px;
+        0.12em;
+
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            0.35
+        );
 }
 
+.book-info {
+    text-align: left;
+
+    min-width: 0;
+}
+
+.book-title {
+    font-size: 16px;
+
+    font-weight: 800;
+
+    line-height: 1.25;
+}
 
 .book-author {
+    margin-top: 4px;
 
-    margin-top:
-        6px;
-
-    font-size:
-        12px;
-
-    color:
-        #666;
+    font-size: 11px;
 
     letter-spacing:
-        1px;
+        0.08em;
+
+    text-transform:
+        uppercase;
+
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            0.42
+        );
+}
+
+.book-time {
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing:
+        0.12em;
+
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            0.38
+        );
+
+    white-space:
+        nowrap;
 }
 
 
-/* =====================================================
+/* =========================================
    FOOTER
-===================================================== */
+========================================= */
 
 .footer {
+    width: 100%;
 
-    position:
-        absolute;
+    max-width: 760px;
 
-    bottom:
-        18px;
+    margin-top: 25px;
 
-    left:
-        0;
+    padding-top: 22px;
 
-    width:
-        100%;
+    border-top:
+        1px solid
+        rgba(
+            255,
+            255,
+            255,
+            0.08
+        );
 
-    text-align:
-        center;
+    text-align: center;
+}
 
-    color:
-        #333;
+.footer-name {
+    font-size: 11px;
 
-    font-size:
-        10px;
+    font-weight: 800;
 
     letter-spacing:
-        2px;
+        0.32em;
 
-    z-index:
-        20;
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            0.32
+        );
 }
 
 
-/* =====================================================
+/* =========================================
    MOBILE
-===================================================== */
+========================================= */
 
-@media (max-width: 600px) {
+@media (
+    max-width: 600px
+) {
+
+    .page {
+        padding:
+            25px
+            15px
+            40px;
+    }
+
+    .hero {
+        min-height:
+            555px;
+    }
 
     .cican {
+        width: 125px;
 
-        width:
-            115px;
-
-        height:
-            115px;
+        height: 125px;
     }
 
     .eye {
+        width: 16px;
 
-        width:
-            13px;
+        height: 23px;
 
-        height:
-            24px;
+        top: 48px;
     }
 
-    .eyes {
+    .eye.left {
+        left: 36px;
+    }
 
-        gap:
-            17px;
+    .eye.right {
+        right: 36px;
     }
 
     .brand {
+        font-size:
+            clamp(
+                52px,
+                18vw,
+                78px
+            );
+    }
+
+    .subtitle {
+        font-size: 16px;
 
         letter-spacing:
-            -4px;
+            0.16em;
     }
 
-    .flow-1 {
+    .minutes {
+        font-size: 11px;
 
-        font-size:
-            70px;
+        letter-spacing:
+            0.25em;
     }
 
-    .flow-3 {
+    .play-button {
+        margin-top: 32px;
 
-        font-size:
-            95px;
+        min-width: 155px;
+
+        min-height: 54px;
+    }
+
+    .library {
+        padding-top: 15px;
+    }
+
+    .book {
+        grid-template-columns:
+            38px
+            1fr
+            auto;
+
+        min-height: 68px;
+
+        padding:
+            9px
+            13px;
+    }
+
+    .book-title {
+        font-size: 14px;
+    }
+
+    .book-author {
+        font-size: 9px;
+    }
+
+    .book-time {
+        font-size: 9px;
     }
 
 }
 
 
-/* =====================================================
+/* =========================================
    REDUCED MOTION
-===================================================== */
+========================================= */
 
-@media (prefers-reduced-motion: reduce) {
+@media (
+    prefers-reduced-motion: reduce
+) {
 
-    .flow,
+    html {
+        scroll-behavior:
+            auto;
+    }
+
+    .background-track,
     .cican {
+        animation: none;
+    }
 
-        animation:
-            none;
+    .book,
+    .play-button {
+        transition: none;
     }
 
 }
@@ -619,53 +827,64 @@ body {
 
 </head>
 
+
 <body>
 
 
-<div class="page">
+<!-- =======================================
+     BACKGROUND
+======================================= -->
 
+<div
+    class="background"
+    aria-hidden="true"
+>
 
-    <!-- ===============================================
-         FLOWING CICAN
-    ================================================ -->
-
-    <div class="flow flow-1">
-        CICAN CICAN CICAN
+    <div class="background-track">
+        CICAN CICAN CICAN CICAN CICAN CICAN
     </div>
 
-    <div class="flow flow-2">
-        CICAN CICAN CICAN CICAN
+    <div class="background-track">
+        CICAN CICAN CICAN CICAN CICAN CICAN
     </div>
 
-    <div class="flow flow-3">
-        CICAN CICAN CICAN
+    <div class="background-track">
+        CICAN CICAN CICAN CICAN CICAN CICAN
     </div>
 
-    <div class="flow flow-4">
-        CICAN CICAN CICAN CICAN
-    </div>
+</div>
 
 
-    <!-- ===============================================
-         MAIN EXPERIENCE
-    ================================================ -->
+<!-- =======================================
+     PAGE
+======================================= -->
 
-    <main class="content">
+<main class="page">
 
 
-        <!-- MAIN CICAN -->
+    <!-- ===================================
+         HERO
+    ==================================== -->
 
+    <section class="hero">
+
+
+        <!-- CICAN -->
         <a
-            class="cican"
-            href="v14.html"
-            aria-label="Play the book"
+            class="cican-link"
+            href="v15.html#1984"
+            aria-label="Play Nineteen Eighty-Four"
         >
 
-            <div class="eyes">
+            <div class="cican">
 
-                <div class="eye"></div>
+                <div
+                    class="eye left"
+                ></div>
 
-                <div class="eye"></div>
+                <div
+                    class="eye right"
+                ></div>
 
             </div>
 
@@ -674,61 +893,222 @@ body {
 
         <!-- BRAND -->
 
-        <div class="brand">
+        <h1 class="brand">
             CICAN
-        </div>
+        </h1>
 
 
-        <!-- PRODUCT -->
-
-        <div class="play-title">
+        <div class="subtitle">
             PLAY THE BOOK
         </div>
 
-        <div class="time">
+
+        <div class="minutes">
             15 MINUTES
         </div>
 
 
-        <!-- PLAY -->
+        <!-- MAIN PLAY -->
 
         <a
             class="play-button"
-            href="v14.html"
+            href="v15.html#1984"
         >
             PLAY
         </a>
 
 
-        <!-- BOOK -->
+    </section>
 
-        <div class="book">
 
-            <div class="book-name">
-                Nineteen Eighty-Four
-            </div>
+    <!-- ===================================
+         LIBRARY
+    ==================================== -->
 
-            <div class="book-author">
-                GEORGE ORWELL
-            </div>
+    <section
+        class="library"
+        aria-label="Book library"
+    >
 
+        <div class="library-title">
+            LIBRARY
         </div>
 
 
-    </main>
+        <div class="books">
 
 
-    <!-- ===============================================
+            <!-- BOOK 01 -->
+
+            <a
+                class="book"
+                href="v15.html#1984"
+            >
+
+                <div class="book-number">
+                    01
+                </div>
+
+                <div class="book-info">
+
+                    <div class="book-title">
+                        Nineteen Eighty-Four
+                    </div>
+
+                    <div class="book-author">
+                        George Orwell
+                    </div>
+
+                </div>
+
+                <div class="book-time">
+                    15 MIN
+                </div>
+
+            </a>
+
+
+            <!-- BOOK 02 -->
+
+            <a
+                class="book"
+                href="v15.html#gatsby"
+            >
+
+                <div class="book-number">
+                    02
+                </div>
+
+                <div class="book-info">
+
+                    <div class="book-title">
+                        The Great Gatsby
+                    </div>
+
+                    <div class="book-author">
+                        F. Scott Fitzgerald
+                    </div>
+
+                </div>
+
+                <div class="book-time">
+                    15 MIN
+                </div>
+
+            </a>
+
+
+            <!-- BOOK 03 -->
+
+            <a
+                class="book"
+                href="v15.html#meditations"
+            >
+
+                <div class="book-number">
+                    03
+                </div>
+
+                <div class="book-info">
+
+                    <div class="book-title">
+                        Meditations
+                    </div>
+
+                    <div class="book-author">
+                        Marcus Aurelius
+                    </div>
+
+                </div>
+
+                <div class="book-time">
+                    15 MIN
+                </div>
+
+            </a>
+
+
+            <!-- BOOK 04 -->
+
+            <a
+                class="book"
+                href="v15.html#frankenstein"
+            >
+
+                <div class="book-number">
+                    04
+                </div>
+
+                <div class="book-info">
+
+                    <div class="book-title">
+                        Frankenstein
+                    </div>
+
+                    <div class="book-author">
+                        Mary Shelley
+                    </div>
+
+                </div>
+
+                <div class="book-time">
+                    15 MIN
+                </div>
+
+            </a>
+
+
+            <!-- BOOK 05 -->
+
+            <a
+                class="book"
+                href="v15.html#dracula"
+            >
+
+                <div class="book-number">
+                    05
+                </div>
+
+                <div class="book-info">
+
+                    <div class="book-title">
+                        Dracula
+                    </div>
+
+                    <div class="book-author">
+                        Bram Stoker
+                    </div>
+
+                </div>
+
+                <div class="book-time">
+                    15 MIN
+                </div>
+
+            </a>
+
+
+        </div>
+
+    </section>
+
+
+    <!-- ===================================
          FOOTER
-    ================================================ -->
+    ==================================== -->
 
-    <div class="footer">
-        CICAN
-    </div>
+    <footer class="footer">
+
+        <div class="footer-name">
+            CICAN
+        </div>
+
+    </footer>
 
 
-</div>
+</main>
 
 
 </body>
+
 </html>
