@@ -657,15 +657,18 @@ body {
 
 
 /* =================================================
-   BOTTOM RIGHT READER HUD
+   SMALL MOVABLE READER TIMER
 ================================================= */
 
 #readerHUD {
 
     position: absolute;
 
-    right: 18px;
-    bottom: 18px;
+    right: 12px;
+    bottom: 12px;
+
+    left: auto;
+    top: auto;
 
     z-index: 20;
 
@@ -673,73 +676,94 @@ body {
 
     flex-direction: column;
 
-    align-items: flex-end;
+    align-items: center;
 
-    gap: 7px;
+    justify-content: center;
 
-    padding: 10px 12px;
+    gap: 4px;
+
+    width: auto;
+
+    min-width: 64px;
+
+    padding: 6px 8px;
 
     border:
         1px solid
-        rgba(255,255,255,0.18);
+        rgba(255,255,255,0.16);
 
-    border-radius: 14px;
+    border-radius: 9px;
 
     background:
-        rgba(0,0,0,0.82);
+        rgba(0,0,0,0.76);
 
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(6px);
 
-    pointer-events: none;
+    -webkit-backdrop-filter: blur(6px);
+
+    box-shadow:
+        0 4px 14px
+        rgba(0,0,0,0.30);
+
+    pointer-events: auto;
+
+    touch-action: none;
+
+    user-select: none;
+
+    -webkit-user-select: none;
+
+    cursor: grab;
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+#readerHUD.dragging {
+
+    cursor: grabbing;
+
+    box-shadow:
+        0 0 16px
+        rgba(255,255,255,0.13);
 }
 
 #readerTimer {
 
     color: white;
 
-    font-size: 18px;
+    font-size: 13px;
+
+    line-height: 1;
 
     font-weight: bold;
 
+    letter-spacing: 0.2px;
+
     font-variant-numeric:
         tabular-nums;
+
+    margin: 0;
+
+    white-space: nowrap;
 }
 
 #readerPercent {
 
     color: white;
 
-    font-size: 11px;
+    font-size: 10px;
 
-    opacity: 0.6;
-}
+    line-height: 1;
 
-#readerProgress {
+    font-weight: 500;
 
-    width: 110px;
+    opacity: 0.82;
 
-    height: 2px;
+    letter-spacing: 0.4px;
 
-    background:
-        rgba(255,255,255,0.16);
+    margin: 0;
 
-    overflow: hidden;
-
-    border-radius: 10px;
-}
-
-#readerProgressBar {
-
-    height: 100%;
-
-    width: 0;
-
-    background: white;
-
-    transform-origin: left center;
-
-    transition:
-        width 0.1s linear;
+    white-space: nowrap;
 }
 
 
@@ -854,12 +878,7 @@ body {
 
         bottom: 10px;
 
-        padding: 8px 10px;
-    }
-
-    #readerProgress {
-
-        width: 90px;
+        padding: 6px 8px;
     }
 
     .prologue-panel {
@@ -973,12 +992,6 @@ body {
                 0%
             </div>
 
-            <div id="readerProgress">
-
-                <div id="readerProgressBar"></div>
-
-            </div>
-
         </div>
 
 
@@ -1008,48 +1021,11 @@ body {
      CURRENT BOOK
 ================================================= -->
 
-<script>
+<script src="books/nineteen-eighty-four.js"></script>
 
-(function () {
-
-    const library = {
-        "1984":
-            "books/nineteen-eighty-four.js",
-
-        "gatsby":
-            "books/the-great-gatsby.js",
-        
-        "meditations":
-    "books/meditations.js",
-
-        "frankenstein":
-    "books/frankenstein.js",
-
-        "dracula":
-    "books/dracula.js"
-        
-    };
-
-    const key =
-        window.location.hash
-            .substring(1)
-            .toLowerCase();
-
-    const book =
-        library[key] ||
-        library["1984"];
-
-    document.write(
-        '<script src="' +
-        book +
-        '"><\/script>'
-    );
-
-})();
-
-</script>
 
 <script>
+
 
 /*
 ==================================================
@@ -2161,10 +2137,10 @@ function updateReaderUI() {
         percent + "%";
 
 
-    document.getElementById(
-        "readerProgressBar"
-    ).style.width =
-        percent + "%";
+    /*
+       The percentage is now the only
+       progress indicator in the small HUD.
+    */
 }
 
 
@@ -2474,12 +2450,6 @@ function finishReader() {
         "100%";
 
 
-    document.getElementById(
-        "readerProgressBar"
-    ).style.width =
-        "100%";
-
-
     readerStatus.textContent =
         "COMPLETE";
 
@@ -2674,6 +2644,340 @@ reader.addEventListener(
     function(e) {
 
         e.stopPropagation();
+    }
+);
+
+
+/* =================================================
+   SMALL MOVABLE TIMER
+================================================= */
+
+const readerHUD =
+    document.getElementById(
+        "readerHUD"
+    );
+
+const readerPanel =
+    document.querySelector(
+        ".reader-panel"
+    );
+
+let hudDragging = false;
+
+let hudPointerId = null;
+
+let hudOffsetX = 0;
+
+let hudOffsetY = 0;
+
+
+readerHUD.addEventListener(
+    "pointerdown",
+    function(e) {
+
+        e.preventDefault();
+
+        e.stopPropagation();
+
+
+        hudDragging = true;
+
+        hudPointerId =
+            e.pointerId;
+
+
+        const hudRect =
+            readerHUD.getBoundingClientRect();
+
+
+        hudOffsetX =
+            e.clientX -
+            hudRect.left;
+
+
+        hudOffsetY =
+            e.clientY -
+            hudRect.top;
+
+
+        readerHUD.classList.add(
+            "dragging"
+        );
+
+
+        try {
+
+            readerHUD.setPointerCapture(
+                e.pointerId
+            );
+
+        } catch (_) {}
+    },
+    {
+        passive: false
+    }
+);
+
+
+readerHUD.addEventListener(
+    "pointermove",
+    function(e) {
+
+        if (
+            !hudDragging ||
+            e.pointerId !== hudPointerId
+        ) {
+            return;
+        }
+
+
+        e.preventDefault();
+
+        e.stopPropagation();
+
+
+        const panelRect =
+            readerPanel.getBoundingClientRect();
+
+        const hudRect =
+            readerHUD.getBoundingClientRect();
+
+
+        const padding =
+            6;
+
+
+        let left =
+            e.clientX -
+            panelRect.left -
+            hudOffsetX;
+
+
+        let top =
+            e.clientY -
+            panelRect.top -
+            hudOffsetY;
+
+
+        const maxLeft =
+            Math.max(
+                padding,
+                panelRect.width -
+                hudRect.width -
+                padding
+            );
+
+
+        const maxTop =
+            Math.max(
+                padding,
+                panelRect.height -
+                hudRect.height -
+                padding
+            );
+
+
+        left =
+            Math.max(
+                padding,
+                Math.min(
+                    maxLeft,
+                    left
+                )
+            );
+
+
+        top =
+            Math.max(
+                padding,
+                Math.min(
+                    maxTop,
+                    top
+                )
+            );
+
+
+        readerHUD.style.left =
+            left + "px";
+
+
+        readerHUD.style.top =
+            top + "px";
+
+
+        readerHUD.style.right =
+            "auto";
+
+
+        readerHUD.style.bottom =
+            "auto";
+    },
+    {
+        passive: false
+    }
+);
+
+
+function endHUDDrag(e) {
+
+    if (!hudDragging) {
+        return;
+    }
+
+
+    if (
+        e &&
+        e.pointerId !== hudPointerId
+    ) {
+        return;
+    }
+
+
+    if (e) {
+
+        e.preventDefault();
+
+        e.stopPropagation();
+    }
+
+
+    hudDragging =
+        false;
+
+
+    readerHUD.classList.remove(
+        "dragging"
+    );
+
+
+    try {
+
+        readerHUD.releasePointerCapture(
+            hudPointerId
+        );
+
+    } catch (_) {}
+
+
+    hudPointerId =
+        null;
+}
+
+
+readerHUD.addEventListener(
+    "pointerup",
+    endHUDDrag,
+    {
+        passive: false
+    }
+);
+
+
+readerHUD.addEventListener(
+    "pointercancel",
+    endHUDDrag,
+    {
+        passive: false
+    }
+);
+
+
+/* =================================================
+   KEEP HUD INSIDE READER
+================================================= */
+
+window.addEventListener(
+    "resize",
+    function() {
+
+        if (
+            !readerHUD.style.left
+        ) {
+            return;
+        }
+
+
+        const panelRect =
+            readerPanel.getBoundingClientRect();
+
+        const hudRect =
+            readerHUD.getBoundingClientRect();
+
+
+        const padding =
+            6;
+
+
+        let left =
+            parseFloat(
+                readerHUD.style.left
+            );
+
+
+        let top =
+            parseFloat(
+                readerHUD.style.top
+            );
+
+
+        if (
+            !Number.isFinite(left)
+        ) {
+            left = padding;
+        }
+
+
+        if (
+            !Number.isFinite(top)
+        ) {
+            top = padding;
+        }
+
+
+        const maxLeft =
+            Math.max(
+                padding,
+                panelRect.width -
+                hudRect.width -
+                padding
+            );
+
+
+        const maxTop =
+            Math.max(
+                padding,
+                panelRect.height -
+                hudRect.height -
+                padding
+            );
+
+
+        left =
+            Math.max(
+                padding,
+                Math.min(
+                    maxLeft,
+                    left
+                )
+            );
+
+
+        top =
+            Math.max(
+                padding,
+                Math.min(
+                    maxTop,
+                    top
+                )
+            );
+
+
+        readerHUD.style.left =
+            left + "px";
+
+
+        readerHUD.style.top =
+            top + "px";
     }
 );
 
