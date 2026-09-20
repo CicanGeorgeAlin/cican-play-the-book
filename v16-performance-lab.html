@@ -3738,12 +3738,12 @@ function applyEmergentGroupAttraction() {
     */
     const attractionStrength =
         Math.min(
-            0.022,
-            0.009 +
-            (count - 3) * 0.003
+            0.060,
+            0.024 +
+            (count - 3) * 0.006
         );
 
-    const attractionRange = 420;
+    const attractionRange = 520;
     const attractionRangeSquared =
         attractionRange * attractionRange;
 
@@ -3809,7 +3809,7 @@ function applyEmergentGroupAttraction() {
         const force =
             attractionStrength *
             Math.max(
-                0.12,
+                0.25,
                 proximity
             );
 
