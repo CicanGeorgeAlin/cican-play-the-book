@@ -1843,7 +1843,7 @@ function findClosestOne(
     ) {
 
         const d =
-            distance(
+            distanceSquared(
                 px,
                 py,
                 one.x,
@@ -2016,7 +2016,7 @@ function checkForMerges() {
 
             if (
                 d <=
-                MERGE_DISTANCE
+                MERGE_DISTANCE * MERGE_DISTANCE
             ) {
 
                 mergeOnes(
