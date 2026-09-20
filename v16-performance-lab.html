@@ -3760,6 +3760,9 @@ let motionGamma = 0;
 let motionBeta = 0;
 let motionSmoothGamma = 0;
 let motionSmoothBeta = 0;
+let motionBaseGamma = null;
+let motionBaseBeta = null;
+let motionLastEventTime = 0;
 
 const motionPermissionButton =
     document.getElementById("motionPermission");
@@ -3776,22 +3779,37 @@ function handleDeviceOrientation(event) {
     motionSupported = true;
 
     /*
-        Keep the signal deliberately small.
-        The phone should influence the world,
-        not become a steering wheel.
+        Calibrate the phone's starting orientation.
+        We react to CHANGE in tilt, not the absolute
+        angle at which the phone happens to be held.
     */
+    if (motionBaseGamma === null) {
+        motionBaseGamma = event.gamma;
+    }
+
+    if (motionBaseBeta === null) {
+        motionBaseBeta = event.beta;
+    }
+
     motionGamma =
         Math.max(
-            -30,
-            Math.min(30, event.gamma)
+            -25,
+            Math.min(
+                25,
+                event.gamma - motionBaseGamma
+            )
         );
 
     motionBeta =
         Math.max(
-            -30,
-            Math.min(30, event.beta)
+            -25,
+            Math.min(
+                25,
+                event.beta - motionBaseBeta
+            )
         );
 
+    motionLastEventTime = performance.now();
     motionEnabled = true;
 
     motionPermissionButton.classList.remove("open");
@@ -3835,6 +3853,19 @@ function startDeviceMotion() {
         handleDeviceOrientation,
         { passive: true }
     );
+
+    /*
+        Some Android browsers expose the absolute
+        orientation stream separately. It uses the same
+        handler when available.
+    */
+    if ("ondeviceorientationabsolute" in window) {
+        window.addEventListener(
+            "deviceorientationabsolute",
+            handleDeviceOrientation,
+            { passive: true }
+        );
+    }
 }
 
 motionPermissionButton.addEventListener(
@@ -3891,39 +3922,55 @@ function applyDeviceMotion() {
     /*
         Population-level influence.
 
-        The force is strongest on smaller CICANs and
-        deliberately capped so touch remains dominant.
+        The phone now creates a visible but smooth
+        environmental drift. The effect is relative
+        to the starting orientation, so upright/landscape
+        holding does not accidentally steer the world.
+
+        Touch remains dominant.
     */
     const tiltX =
-        motionSmoothGamma * 0.18;
+        motionSmoothGamma * 1.55;
 
     const tiltY =
-        motionSmoothBeta * 0.12;
+        motionSmoothBeta * 1.15;
 
     for (const one of ones) {
 
-        /*
-            Selected CICAN remains directly controlled
-            by the player. Other CICANs receive the
-            environmental influence.
-        */
         if (one === selectedOne) {
             continue;
         }
 
-        one.targetX +=
-            (
-                window.innerWidth / 2 +
-                tiltX * 10 -
-                one.targetX
-            ) * 0.0025;
+        /*
+            A small direct target influence makes the
+            response perceptible immediately, while
+            the existing 0.10 movement interpolation
+            keeps the visual motion smooth.
+        */
+        one.targetX += tiltX * 0.018;
+        one.targetY += tiltY * 0.018;
 
-        one.targetY +=
-            (
-                window.innerHeight / 2 +
-                tiltY * 10 -
-                one.targetY
-            ) * 0.0025;
+        /*
+            Keep the target bounded so long tilts cannot
+            push a CICAN permanently off-screen.
+        */
+        one.targetX =
+            Math.max(
+                -80,
+                Math.min(
+                    window.innerWidth + 80,
+                    one.targetX
+                )
+            );
+
+        one.targetY =
+            Math.max(
+                -80,
+                Math.min(
+                    window.innerHeight + 80,
+                    one.targetY
+                )
+            );
     }
 }
 
