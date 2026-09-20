@@ -151,6 +151,24 @@ body {
 }
 
 
+
+
+/* =================================================
+   TAO TE CHING EXPERIENCE
+================================================= */
+
+.tao-flow {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    opacity: 0.18;
+    box-shadow: 0 0 6px rgba(255,255,255,0.75);
+}
+
 /* =================================================
    TRAIL
 ================================================= */
@@ -1062,7 +1080,8 @@ const BOOK_SOURCES = {
     "meditations": "books/meditations.js",
     "frankenstein": "books/frankenstein.js",
     "dracula": "books/dracula.js",
-    "dhammapada": "books/dhammapada.js"
+    "dhammapada": "books/dhammapada.js",
+    "tao-te-ching": "books/tao-te-ching.js"
 };
 
 const requestedBookId =
@@ -1389,6 +1408,150 @@ function updateDhammapadaExperience() {
 
         thought.element.style.opacity =
             String(0.18 + calm * 0.35);
+    }
+}
+
+
+/* =================================================
+   TAO TE CHING EXPERIENCE
+================================================= */
+
+const TAO_MODE =
+    BOOK_READ &&
+    BOOK_READ.gameMode === "tao";
+
+let taoFlows = [];
+let taoLastX = window.innerWidth / 2;
+let taoLastY = window.innerHeight / 2;
+
+function createTaoFlows() {
+
+    if (!TAO_MODE) {
+        return;
+    }
+
+    for (let i = 0; i < 30; i++) {
+
+        const element =
+            document.createElement("div");
+
+        element.className =
+            "tao-flow";
+
+        document.body.appendChild(element);
+
+        const flow = {
+            element: element,
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            vx: 0.22 + Math.random() * 0.34,
+            vy: 0,
+            phase: Math.random() * Math.PI * 2
+        };
+
+        taoFlows.push(flow);
+
+        element.style.left = flow.x + "px";
+        element.style.top = flow.y + "px";
+    }
+}
+
+function updateTaoExperience() {
+
+    if (!TAO_MODE || !selectedOne) {
+        return;
+    }
+
+    const dx =
+        selectedOne.x - taoLastX;
+
+    const dy =
+        selectedOne.y - taoLastY;
+
+    const movement =
+        Math.sqrt(dx * dx + dy * dy);
+
+    taoLastX = selectedOne.x;
+    taoLastY = selectedOne.y;
+
+    for (const flow of taoFlows) {
+
+        const wave =
+            Math.sin(
+                flow.y * 0.008 +
+                flow.phase +
+                performance.now() * 0.00035
+            );
+
+        flow.vy += wave * 0.0025;
+
+        if (movement > 0.45) {
+
+            const tx =
+                flow.x - selectedOne.x;
+
+            const ty =
+                flow.y - selectedOne.y;
+
+            const d =
+                Math.sqrt(tx * tx + ty * ty);
+
+            if (d > 1 && d < 190) {
+
+                const nx = tx / d;
+                const ny = ty / d;
+
+                const moveX = dx / movement;
+                const moveY = dy / movement;
+
+                const withFlow =
+                    Math.max(
+                        0,
+                        moveX * 0.92 +
+                        moveY * wave * 0.12
+                    );
+
+                const disturbance =
+                    0.035 *
+                    (1 - d / 190) *
+                    (1.15 - withFlow);
+
+                flow.vx += nx * disturbance;
+                flow.vy += ny * disturbance;
+            }
+        }
+
+        flow.vx =
+            Math.max(
+                0.12,
+                Math.min(0.9, flow.vx * 0.992)
+            );
+
+        flow.vy *= 0.985;
+
+        flow.x += flow.vx;
+        flow.y += flow.vy;
+
+        if (flow.x > window.innerWidth + 12) {
+            flow.x = -12;
+            flow.y = Math.random() * window.innerHeight;
+            flow.vx = 0.22 + Math.random() * 0.34;
+            flow.vy = 0;
+        }
+
+        if (flow.y < -12) {
+            flow.y = window.innerHeight + 12;
+        }
+
+        if (flow.y > window.innerHeight + 12) {
+            flow.y = -12;
+        }
+
+        flow.element.style.left =
+            flow.x + "px";
+
+        flow.element.style.top =
+            flow.y + "px";
     }
 }
 
@@ -3479,6 +3642,18 @@ if (DHAMMAPADA_MODE) {
 }
 
 
+if (TAO_MODE) {
+
+    createTaoFlows();
+
+    taoLastX =
+        selectedOne.x;
+
+    taoLastY =
+        selectedOne.y;
+}
+
+
 /* =================================================
    MAIN LOOP
 ================================================= */
@@ -3580,6 +3755,12 @@ function animate() {
     if (DHAMMAPADA_MODE) {
 
         updateDhammapadaExperience();
+    }
+
+
+    if (TAO_MODE) {
+
+        updateTaoExperience();
     }
 
 
