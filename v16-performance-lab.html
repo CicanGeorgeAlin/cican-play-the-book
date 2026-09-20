@@ -978,10 +978,7 @@ document.addEventListener("visibilitychange", performanceLabVisibilityChanged);
     }
 }
 
-/* PERFORMANCE LAB: compositor-friendly positioning; visual values are unchanged. */
-.one, .knowledge, .dhamma-thought, .tao-flow, .trail {
-    contain: layout style paint;
-}
+/* PERFORMANCE LAB: no visual-positioning overrides. */
 </style>
 </head>
 
@@ -1356,8 +1353,11 @@ function createDhammapadaThoughts() {
 
         dhammaThoughts.push(thought);
 
-        element.style.transform =
-            "translate3d(" + thought.x + "px, " + thought.y + "px, 0) translate(-50%, -50%)";
+        element.style.left =
+            thought.x + "px";
+
+        element.style.top =
+            thought.y + "px";
     }
 }
 
@@ -1437,8 +1437,11 @@ function updateDhammapadaExperience() {
             thought.vy *= -0.7;
         }
 
-        thought.element.style.transform =
-            "translate3d(" + thought.x + "px, " + thought.y + "px, 0) translate(-50%, -50%)";
+        thought.element.style.left =
+            thought.x + "px";
+
+        thought.element.style.top =
+            thought.y + "px";
 
         const calm =
             Math.min(1, dhammaStillTime / 4);
@@ -1488,8 +1491,8 @@ function createTaoFlows() {
 
         taoFlows.push(flow);
 
-        element.style.transform =
-            "translate3d(" + flow.x + "px, " + flow.y + "px, 0) translate(-50%, -50%)";
+        element.style.left = flow.x + "px";
+        element.style.top = flow.y + "px";
     }
 }
 
@@ -1584,8 +1587,11 @@ function updateTaoExperience() {
             flow.y = -12;
         }
 
-        flow.element.style.transform =
-            "translate3d(" + flow.x + "px, " + flow.y + "px, 0) translate(-50%, -50%)";
+        flow.element.style.left =
+            flow.x + "px";
+
+        flow.element.style.top =
+            flow.y + "px";
     }
 }
 
@@ -1772,8 +1778,11 @@ function createOne(
 
 function updateOne(one) {
 
-    one.element.style.transform =
-        "translate3d(" + one.x + "px, " + one.y + "px, 0) translate(-50%, -50%)";
+    one.element.style.left =
+        one.x + "px";
+
+    one.element.style.top =
+        one.y + "px";
 
     if (one.renderedSize !== one.size) {
         one.element.style.width = one.size + "px";
@@ -1800,8 +1809,11 @@ function createTrail(
     trail.className =
         "trail";
 
-    trail.style.transform =
-        "translate3d(" + px + "px, " + py + "px, 0) translate(-50%, -50%)";
+    trail.style.left =
+        px + "px";
+
+    trail.style.top =
+        py + "px";
 
     document.body.appendChild(
         trail
@@ -2247,8 +2259,11 @@ function updateKnowledge(
         );
 
 
-    knowledge.element.style.transform =
-        "translate3d(" + knowledge.x + "px, " + knowledge.y + "px, 0) translate(-50%, -50%)";
+    knowledge.element.style.left =
+        knowledge.x + "px";
+
+    knowledge.element.style.top =
+        knowledge.y + "px";
 }
 
 
