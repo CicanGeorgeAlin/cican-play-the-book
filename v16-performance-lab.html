@@ -267,11 +267,19 @@ function performanceLabVisibilityChanged() {
     performanceLabPageHidden = document.visibilityState === "hidden";
 
     if (performanceLabPageHidden) {
+        if (typeof stopReaderAnimation === "function") {
+            stopReaderAnimation();
+        }
         if (performanceLabAnimationId !== null) {
             cancelAnimationFrame(performanceLabAnimationId);
             performanceLabAnimationId = null;
         }
         return;
+    }
+
+    if (reader.classList.contains("open") && !readerComplete && !readerPaused) {
+        readerLastTime = performance.now();
+        readerAnimation = requestAnimationFrame(fluidAutoReader);
     }
 
     if (performanceLabAnimationId === null) {
