@@ -1,2 +1,0 @@
-CICAN GitHub connection test.
-Created through the connected GitHub integration.
