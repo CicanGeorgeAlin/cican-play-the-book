@@ -978,6 +978,33 @@ document.addEventListener("visibilitychange", performanceLabVisibilityChanged);
     }
 }
 
+/* =================================================
+   DEVICE MOTION — GYROSCOPE LAB
+================================================= */
+
+#motionPermission {
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    z-index: 1100;
+    display: none;
+    padding: 9px 14px;
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 18px;
+    background: rgba(0,0,0,0.72);
+    color: white;
+    font-size: 11px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#motionPermission.open {
+    display: block;
+}
+
 /* PERFORMANCE LAB: no visual-positioning overrides. */
 </style>
 </head>
@@ -1003,6 +1030,10 @@ document.addEventListener("visibilitychange", performanceLabVisibilityChanged);
 
 <button id="reset">
     BACK
+</button>
+
+<button id="motionPermission">
+    ENABLE MOTION
 </button>
 
 
@@ -3717,6 +3748,187 @@ if (TAO_MODE) {
 
 
 /* =================================================
+   DEVICE MOTION — GYROSCOPE LAB
+
+   Device tilt acts as a subtle population-level force.
+   Touch remains the precise control layer.
+================================================= */
+
+let motionEnabled = false;
+let motionSupported = false;
+let motionGamma = 0;
+let motionBeta = 0;
+let motionSmoothGamma = 0;
+let motionSmoothBeta = 0;
+
+const motionPermissionButton =
+    document.getElementById("motionPermission");
+
+function handleDeviceOrientation(event) {
+
+    if (
+        typeof event.gamma !== "number" ||
+        typeof event.beta !== "number"
+    ) {
+        return;
+    }
+
+    motionSupported = true;
+
+    /*
+        Keep the signal deliberately small.
+        The phone should influence the world,
+        not become a steering wheel.
+    */
+    motionGamma =
+        Math.max(
+            -30,
+            Math.min(30, event.gamma)
+        );
+
+    motionBeta =
+        Math.max(
+            -30,
+            Math.min(30, event.beta)
+        );
+
+    motionEnabled = true;
+
+    motionPermissionButton.classList.remove("open");
+}
+
+function startDeviceMotion() {
+
+    if (
+        typeof DeviceOrientationEvent === "undefined"
+    ) {
+        return;
+    }
+
+    if (
+        typeof DeviceOrientationEvent.requestPermission === "function"
+    ) {
+
+        DeviceOrientationEvent
+            .requestPermission()
+            .then(function(permission) {
+
+                if (permission === "granted") {
+
+                    window.addEventListener(
+                        "deviceorientation",
+                        handleDeviceOrientation,
+                        { passive: true }
+                    );
+
+                    motionEnabled = true;
+                }
+
+            })
+            .catch(function() {});
+        
+        return;
+    }
+
+    window.addEventListener(
+        "deviceorientation",
+        handleDeviceOrientation,
+        { passive: true }
+    );
+}
+
+motionPermissionButton.addEventListener(
+    "pointerdown",
+    function(e) {
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        startDeviceMotion();
+    }
+);
+
+if (
+    typeof DeviceOrientationEvent !== "undefined" &&
+    typeof DeviceOrientationEvent.requestPermission === "function"
+) {
+    motionPermissionButton.classList.add("open");
+} else {
+    startDeviceMotion();
+}
+
+
+/* =================================================
+   APPLY DEVICE MOTION
+================================================= */
+
+function applyDeviceMotion() {
+
+    if (
+        !motionEnabled ||
+        ones.length === 0
+    ) {
+        return;
+    }
+
+    /*
+        Smooth the sensor signal before using it.
+        This removes tiny hand jitter without adding
+        noticeable control delay.
+    */
+    motionSmoothGamma +=
+        (
+            motionGamma -
+            motionSmoothGamma
+        ) * 0.18;
+
+    motionSmoothBeta +=
+        (
+            motionBeta -
+            motionSmoothBeta
+        ) * 0.18;
+
+    /*
+        Population-level influence.
+
+        The force is strongest on smaller CICANs and
+        deliberately capped so touch remains dominant.
+    */
+    const tiltX =
+        motionSmoothGamma * 0.18;
+
+    const tiltY =
+        motionSmoothBeta * 0.12;
+
+    for (const one of ones) {
+
+        /*
+            Selected CICAN remains directly controlled
+            by the player. Other CICANs receive the
+            environmental influence.
+        */
+        if (one === selectedOne) {
+            continue;
+        }
+
+        one.targetX +=
+            (
+                window.innerWidth / 2 +
+                tiltX * 10 -
+                one.targetX
+            ) * 0.0025;
+
+        one.targetY +=
+            (
+                window.innerHeight / 2 +
+                tiltY * 10 -
+                one.targetY
+            ) * 0.0025;
+    }
+}
+
+
+/* =================================================
    EMERGENT GROUP ATTRACTION — EXPERIMENT
 
    Three or more CICANs begin to organize themselves.
@@ -3840,6 +4052,15 @@ function animate(now) {
     }
 
     performanceLabLastFrameTime = now;
+
+    /*
+        DEVICE MOTION.
+
+        Phone movement influences the population gently
+        before the existing attraction and movement layers.
+    */
+    applyDeviceMotion();
+
 
     /*
         EMERGENT GROUP ATTRACTION.
