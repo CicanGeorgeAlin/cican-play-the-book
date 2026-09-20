@@ -54,10 +54,7 @@ button:disabled{opacity:.28;cursor:default}
 </div>
 </main>
 <script>
-const SOURCES={
-dhammapada:"books/dhammapada.js",
-"tao-te-ching":"books/tao-te-ching.js"
-};
+const SOURCES={dhammapada:"books/dhammapada.js","tao-te-ching":"books/tao-te-ching.js"};
 const params=new URLSearchParams(location.search);
 const bookId=params.get("book")||"dhammapada";
 const source=SOURCES[bookId];
@@ -68,23 +65,16 @@ const pause=document.getElementById("pause");
 const stop=document.getElementById("stop");
 const status=document.getElementById("status");
 const progress=document.getElementById("progress");
-let text="";
-let chunks=[];
-let index=0;
-let speaking=false;
+let text="",chunks=[],index=0,speaking=false;
 
 function setStatus(value){status.textContent=value}
 function splitText(value){
-const words=value.trim().split(/\s+/);
-const out=[];
-let current="";
+const words=value.trim().split(/\s+/),out=[];let current="";
 for(const word of words){
-if((current+" "+word).trim().length>1500){
-if(current) out.push(current.trim());
-current=word;
-}else current=(current+" "+word).trim();
+if((current+" "+word).trim().length>1500){if(current)out.push(current.trim());current=word}
+else current=(current+" "+word).trim();
 }
-if(current) out.push(current);
+if(current)out.push(current);
 return out;
 }
 function updateProgress(){
@@ -93,46 +83,34 @@ progress.style.width=pct+"%";
 }
 function speakNext(){
 if(!speaking||index>=chunks.length){
-if(index>=chunks.length){
-speaking=false;
-setStatus("COMPLETE");
-updateProgress();
-}
+if(index>=chunks.length){speaking=false;setStatus("COMPLETE");updateProgress()}
 return;
 }
 const utterance=new SpeechSynthesisUtterance(chunks[index]);
-utterance.rate=1;
-utterance.pitch=1;
+utterance.rate=1;utterance.pitch=1;
 utterance.onend=()=>{
-index++;
-updateProgress();
-if(speaking) speakNext();
+index++;updateProgress();
+if(speaking)speakNext();
 };
 utterance.onerror=()=>{
-speaking=false;
-setStatus("AUDIO ERROR");
+speaking=false;setStatus("AUDIO ERROR");
 };
 speechSynthesis.speak(utterance);
 setStatus("READING · "+Math.min(index+1,chunks.length)+" / "+chunks.length);
 }
 function start(){
 if(!text||!window.speechSynthesis)return;
+if(speechSynthesis.paused){speechSynthesis.resume();speaking=true;setStatus("READING · "+Math.min(index+1,chunks.length)+" / "+chunks.length);return}
 speechSynthesis.cancel();
 speaking=true;
 speakNext();
 }
-play.addEventListener("click",()=>{
-if(!speaking) start();
-});
+play.addEventListener("click",start);
 pause.addEventListener("click",()=>{
-if(speechSynthesis.speaking){speechSynthesis.pause();setStatus("PAUSED");}
+if(speechSynthesis.speaking&&!speechSynthesis.paused){speechSynthesis.pause();setStatus("PAUSED")}
 });
 stop.addEventListener("click",()=>{
-speechSynthesis.cancel();
-speaking=false;
-index=0;
-updateProgress();
-setStatus("READY");
+speechSynthesis.cancel();speaking=false;index=0;updateProgress();setStatus("READY");
 });
 if(!("speechSynthesis" in window)){
 title.textContent="AUDIO UNAVAILABLE";
@@ -146,17 +124,12 @@ setStatus("CHECK THE BOOK ID");
 const script=document.createElement("script");
 script.src=source+"?cican_audio="+Date.now();
 script.onload=()=>{
-if(!window.BOOK_READ){
-setStatus("TEXT FAILED TO LOAD");
-return;
-}
+if(!window.BOOK_READ){setStatus("TEXT FAILED TO LOAD");return}
 title.textContent=window.BOOK_READ.title||"CICAN";
 meta.textContent=[window.BOOK_READ.tradition,window.BOOK_READ.author].filter(Boolean).join(" · ");
 text=window.BOOK_READ.text||"";
 chunks=splitText(text);
-play.disabled=false;
-pause.disabled=false;
-stop.disabled=false;
+play.disabled=false;pause.disabled=false;stop.disabled=false;
 setStatus("READY · "+chunks.length+" AUDIO CHUNKS");
 };
 script.onerror=()=>setStatus("TEXT FAILED TO LOAD");
