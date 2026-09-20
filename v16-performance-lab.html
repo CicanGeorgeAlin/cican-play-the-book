@@ -3717,6 +3717,118 @@ if (TAO_MODE) {
 
 
 /* =================================================
+   EMERGENT GROUP ATTRACTION — EXPERIMENT
+
+   Three or more CICANs begin to organize themselves.
+   The selected CICAN remains fully player-controlled.
+   Attraction is local, capped, and never forces a merge.
+================================================= */
+
+function applyEmergentGroupAttraction() {
+
+    if (ones.length < 3) {
+        return;
+    }
+
+    const count = ones.length;
+
+    /*
+        More CICANs = slightly stronger organization,
+        but always keep the force gentle.
+    */
+    const attractionStrength =
+        Math.min(
+            0.022,
+            0.009 +
+            (count - 3) * 0.003
+        );
+
+    const attractionRange = 420;
+    const attractionRangeSquared =
+        attractionRange * attractionRange;
+
+    for (const one of ones) {
+
+        /*
+            The CICAN currently controlled by the player
+            must never have its target overridden.
+        */
+        if (one === selectedOne) {
+            continue;
+        }
+
+        let nearest = null;
+        let nearestDistanceSquared =
+            attractionRangeSquared;
+
+        for (const other of ones) {
+
+            if (other === one) {
+                continue;
+            }
+
+            const dx =
+                other.x - one.x;
+
+            const dy =
+                other.y - one.y;
+
+            const distanceSquared =
+                dx * dx +
+                dy * dy;
+
+            if (
+                distanceSquared <
+                nearestDistanceSquared
+            ) {
+                nearestDistanceSquared =
+                    distanceSquared;
+
+                nearest = other;
+            }
+        }
+
+        if (!nearest) {
+            continue;
+        }
+
+        /*
+            The closer the neighbor, the more clearly
+            the group begins to influence this CICAN.
+            Distant CICANs barely affect one another.
+        */
+        const distanceRatio =
+            Math.sqrt(
+                nearestDistanceSquared
+            ) /
+            attractionRange;
+
+        const proximity =
+            1 - distanceRatio;
+
+        const force =
+            attractionStrength *
+            Math.max(
+                0.12,
+                proximity
+            );
+
+        one.targetX +=
+            (
+                nearest.x -
+                one.targetX
+            ) * force;
+
+        one.targetY +=
+            (
+                nearest.y -
+                one.targetY
+            ) * force;
+    }
+}
+
+
+/* =================================================
    MAIN LOOP
 ================================================= */
 
@@ -3728,6 +3840,15 @@ function animate(now) {
     }
 
     performanceLabLastFrameTime = now;
+
+    /*
+        EMERGENT GROUP ATTRACTION.
+
+        This only activates for 3+ CICANs and leaves
+        the selected CICAN's direct control untouched.
+    */
+    applyEmergentGroupAttraction();
+
 
     /*
         ORIGINAL V13 FLUID MOVEMENT.
