@@ -978,9 +978,9 @@ document.addEventListener("visibilitychange", performanceLabVisibilityChanged);
     }
 }
 
-/* PERFORMANCE LAB: compositor hint only; visual appearance remains unchanged. */
+/* PERFORMANCE LAB: compositor-friendly positioning; visual values are unchanged. */
 .one, .knowledge, .dhamma-thought, .tao-flow, .trail {
-    will-change: transform;
+    contain: layout style paint;
 }
 </style>
 </head>
@@ -1356,11 +1356,8 @@ function createDhammapadaThoughts() {
 
         dhammaThoughts.push(thought);
 
-        element.style.left =
-            thought.x + "px";
-
-        element.style.top =
-            thought.y + "px";
+        element.style.transform =
+            "translate3d(" + thought.x + "px, " + thought.y + "px, 0) translate(-50%, -50%)";
     }
 }
 
@@ -1440,11 +1437,8 @@ function updateDhammapadaExperience() {
             thought.vy *= -0.7;
         }
 
-        thought.element.style.left =
-            thought.x + "px";
-
-        thought.element.style.top =
-            thought.y + "px";
+        thought.element.style.transform =
+            "translate3d(" + thought.x + "px, " + thought.y + "px, 0) translate(-50%, -50%)";
 
         const calm =
             Math.min(1, dhammaStillTime / 4);
@@ -1494,8 +1488,8 @@ function createTaoFlows() {
 
         taoFlows.push(flow);
 
-        element.style.left = flow.x + "px";
-        element.style.top = flow.y + "px";
+        element.style.transform =
+            "translate3d(" + flow.x + "px, " + flow.y + "px, 0) translate(-50%, -50%)";
     }
 }
 
@@ -1590,11 +1584,8 @@ function updateTaoExperience() {
             flow.y = -12;
         }
 
-        flow.element.style.left =
-            flow.x + "px";
-
-        flow.element.style.top =
-            flow.y + "px";
+        flow.element.style.transform =
+            "translate3d(" + flow.x + "px, " + flow.y + "px, 0) translate(-50%, -50%)";
     }
 }
 
@@ -1682,16 +1673,23 @@ function distance(
     by
 ) {
 
-    const dx =
-        bx - ax;
+    const dx = bx - ax;
+    const dy = by - ay;
 
-    const dy =
-        by - ay;
+    return Math.sqrt(dx * dx + dy * dy);
+}
 
-    return Math.sqrt(
-        dx * dx +
-        dy * dy
-    );
+function distanceSquared(
+    ax,
+    ay,
+    bx,
+    by
+) {
+
+    const dx = bx - ax;
+    const dy = by - ay;
+
+    return dx * dx + dy * dy;
 }
 
 
@@ -1749,6 +1747,8 @@ function createOne(
 
         size: startingSize,
 
+        renderedSize: null,
+
         element: element,
 
         isMemory: isMemory,
@@ -1772,17 +1772,14 @@ function createOne(
 
 function updateOne(one) {
 
-    one.element.style.left =
-        one.x + "px";
+    one.element.style.transform =
+        "translate3d(" + one.x + "px, " + one.y + "px, 0) translate(-50%, -50%)";
 
-    one.element.style.top =
-        one.y + "px";
-
-    one.element.style.width =
-        one.size + "px";
-
-    one.element.style.height =
-        one.size + "px";
+    if (one.renderedSize !== one.size) {
+        one.element.style.width = one.size + "px";
+        one.element.style.height = one.size + "px";
+        one.renderedSize = one.size;
+    }
 }
 
 
@@ -1803,11 +1800,8 @@ function createTrail(
     trail.className =
         "trail";
 
-    trail.style.left =
-        px + "px";
-
-    trail.style.top =
-        py + "px";
+    trail.style.transform =
+        "translate3d(" + px + "px, " + py + "px, 0) translate(-50%, -50%)";
 
     document.body.appendChild(
         trail
@@ -1840,7 +1834,7 @@ function findClosestOne(
 
     let closest = null;
 
-    let closestDistance =
+    let closestDistanceSquared =
         Infinity;
 
 
@@ -1859,10 +1853,10 @@ function findClosestOne(
 
         if (
             d <
-            closestDistance
+            closestDistanceSquared
         ) {
 
-            closestDistance = d;
+            closestDistanceSquared = d;
 
             closest = one;
         }
@@ -2012,7 +2006,7 @@ function checkForMerges() {
 
 
             const d =
-                distance(
+                distanceSquared(
                     oneA.x,
                     oneA.y,
                     oneB.x,
@@ -2136,12 +2130,12 @@ function createKnowledge(
 
 
             if (
-                distance(
+                distanceSquared(
                     e.clientX,
                     e.clientY,
                     knowledge.downX,
                     knowledge.downY
-                ) > 8
+                ) > 64
             ) {
 
                 knowledge.moved =
@@ -2253,11 +2247,8 @@ function updateKnowledge(
         );
 
 
-    knowledge.element.style.left =
-        knowledge.x + "px";
-
-    knowledge.element.style.top =
-        knowledge.y + "px";
+    knowledge.element.style.transform =
+        "translate3d(" + knowledge.x + "px, " + knowledge.y + "px, 0) translate(-50%, -50%)";
 }
 
 
