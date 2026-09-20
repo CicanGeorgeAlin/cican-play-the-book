@@ -262,6 +262,7 @@ body {
 
 let performanceLabAnimationId = null;
 let performanceLabPageHidden = false;
+let performanceLabLastFrameTime = 0;
 
 function performanceLabVisibilityChanged() {
     performanceLabPageHidden = document.visibilityState === "hidden";
@@ -283,6 +284,7 @@ function performanceLabVisibilityChanged() {
     }
 
     if (performanceLabAnimationId === null) {
+        performanceLabLastFrameTime = performance.now();
         performanceLabAnimationId = requestAnimationFrame(animate);
     }
 }
@@ -3712,7 +3714,14 @@ if (TAO_MODE) {
    MAIN LOOP
 ================================================= */
 
-function animate() {
+function animate(now) {
+
+    if (performanceLabPageHidden) {
+        performanceLabAnimationId = null;
+        return;
+    }
+
+    performanceLabLastFrameTime = now;
 
     /*
         ORIGINAL V13 FLUID MOVEMENT.
