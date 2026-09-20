@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>GCAR V17 — THE FIRST INTERACTION</title>
+<meta name="description" content="GCAR V17 experimental prototype — carrier, receiver, absorption, state change, emission, return.">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020202;color:#fff;font-family:Arial,Helvetica,sans-serif}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+#hud{position:fixed;top:18px;left:18px;z-index:5;pointer-events:none;user-select:none}
+#brand{font-size:17px;font-weight:700;letter-spacing:3px}
+#phase{margin-top:7px;font-size:9px;letter-spacing:2px;opacity:.5}
+#hint{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:5;width:max-content;max-width:calc(100% - 40px);text-align:center;font-size:9px;letter-spacing:1.7px;line-height:1.6;opacity:.42;pointer-events:none;transition:opacity .8s}
+#cycle{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:4;pointer-events:none;text-align:center;opacity:0;transition:opacity .25s}
+#cycle strong{display:block;font-size:10px;letter-spacing:2.5px}
+#cycle span{display:block;margin-top:7px;font-size:8px;letter-spacing:1.6px;opacity:.6}
+#back{position:fixed;right:18px;bottom:18px;z-index:8;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:10px 14px;font-size:8px;letter-spacing:1.8px;cursor:pointer}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud"><div id="brand">GCAR</div><div id="phase">THE FIRST INTERACTION</div></div>
+<div id="cycle"><strong id="cycleMain">STATE CHANGE</strong><span id="cycleSub">INFORMATION RECEIVED</span></div>
+<div id="hint">TOUCH / DRAG THE CARRIER TOWARD THE RECEIVER</div>
+<button id="back" type="button">BACK</button>
+<script>
+/*
+GCAR V17 — THE FIRST INTERACTION
+Experimental prototype.
+
+Core cycle:
+CARRIER → RECEIVER → ABSORPTION → STATE CHANGE → EMISSION → RETURN
+
+This is a deliberately simplified interactive model inspired by
+photon/electron state-transition concepts. It is not a literal
+quantum-mechanical simulation.
+*/
+
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+const phaseEl=document.getElementById("phase");
+const cycle=document.getElementById("cycle");
+const cycleMain=document.getElementById("cycleMain");
+const cycleSub=document.getElementById("cycleSub");
+const hint=document.getElementById("hint");
+const back=document.getElementById("back");
+
+let W=innerWidth,H=innerHeight,DPR=Math.min(devicePixelRatio||1,2);
+function resize(){
+  W=innerWidth;H=innerHeight;DPR=Math.min(devicePixelRatio||1,2);
+  canvas.width=W*DPR;canvas.height=H*DPR;
+  canvas.style.width=W+"px";canvas.style.height=H+"px";
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  receiver.x=W*.5;receiver.y=H*.5;
+  if(!carrier.active && !carrier.returning){carrier.x=W*.18;carrier.y=H*.5}
+}
+addEventListener("resize",resize);
+
+const receiver={
+  x:W*.5,y:H*.5,
+  state:"ground",
+  energy:0,
+  pulse:0,
+  glow:0,
+  cooldown:0
+};
+
+const carrier={
+  x:W*.18,y:H*.5,
+  vx:0,vy:0,
+  radius:7,
+  active:true,
+  grabbed:false,
+  returning:false,
+  emitted:false,
+  energy:1
+};
+
+let particles=[];
+let ripples=[];
+let last=performance.now();
+let interactionCount=0;
+let stateTimer=0;
+let messageTimer=0;
+let pointer={x:0,y:0,down:false};
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function lerp(a,b,t){return a+(b-a)*t}
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+
+function resetCarrier(){
+  carrier.x=W*.18;
+  carrier.y=H*.5+Math.sin(interactionCount*.7)*Math.min(70,H*.12);
+  carrier.vx=0;carrier.vy=0;
+  carrier.active=true;
+  carrier.grabbed=false;
+  carrier.returning=false;
+  carrier.emitted=false;
+  carrier.energy=1;
+}
+
+function showMessage(main,sub,seconds=1.15){
+  cycleMain.textContent=main;
+  cycleSub.textContent=sub;
+  cycle.style.opacity="1";
+  messageTimer=seconds;
+}
+
+function absorb(){
+  carrier.active=false;
+  carrier.grabbed=false;
+  receiver.state="excited";
+  receiver.energy=1;
+  receiver.pulse=1;
+  receiver.glow=1;
+  interactionCount++;
+  stateTimer=0;
+  showMessage("ABSORPTION","INFORMATION RECEIVED");
+  hint.style.opacity=".12";
+  for(let i=0;i<18;i++){
+    const a=Math.random()*Math.PI*2;
+    const s=35+Math.random()*90;
+    particles.push({
+      x:receiver.x,y:receiver.y,
+      vx:Math.cos(a)*s,vy:Math.sin(a)*s,
+      life:1,kind:"absorb"
+    });
+  }
+}
+
+function emit(){
+  receiver.state="returning";
+  receiver.energy=0;
+  receiver.glow=.8;
+  carrier.x=receiver.x;
+  carrier.y=receiver.y;
+  carrier.active=false;
+  carrier.returning=true;
+  carrier.emitted=true;
+  carrier.radius=5.5;
+  carrier.energy=.85;
+  showMessage("EMISSION","INFORMATION RELEASED");
+  for(let i=0;i<12;i++){
+    const a=Math.random()*Math.PI*2;
+    particles.push({
+      x:receiver.x,y:receiver.y,
+      vx:Math.cos(a)*(20+Math.random()*50),
+      vy:Math.sin(a)*(20+Math.random()*50),
+      life:.8,kind:"emit"
+    });
+  }
+}
+
+function completeReturn(){
+  carrier.returning=false;
+  receiver.state="ground";
+  receiver.pulse=0;
+  receiver.glow=0;
+  carrier.radius=7;
+  carrier.active=true;
+  carrier.x=W*.18;
+  carrier.y=H*.5+Math.sin(interactionCount*.7)*Math.min(70,H*.12);
+  carrier.vx=0;carrier.vy=0;
+  carrier.emitted=false;
+  carrier.energy=1;
+  stateTimer=0;
+  showMessage("RETURN","READY FOR ANOTHER INTERACTION",.9);
+  hint.style.opacity=".42";
+}
+
+function pointerPosition(e){
+  const r=canvas.getBoundingClientRect();
+  return {x:e.clientX-r.left,y:e.clientY-r.top};
+}
+
+canvas.addEventListener("pointerdown",e=>{
+  const p=pointerPosition(e);
+  pointer.x=p.x;pointer.y=p.y;pointer.down=true;
+  try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+  if(carrier.active && Math.hypot(p.x-carrier.x,p.y-carrier.y)<42){
+    carrier.grabbed=true;
+    hint.style.opacity=".08";
+  }
+});
+
+canvas.addEventListener("pointermove",e=>{
+  const p=pointerPosition(e);
+  pointer.x=p.x;pointer.y=p.y;
+  if(pointer.down && carrier.grabbed && carrier.active){
+    carrier.x=p.x;carrier.y=p.y;
+  }
+});
+
+function endPointer(){
+  pointer.down=false;
+  carrier.grabbed=false;
+}
+canvas.addEventListener("pointerup",endPointer);
+canvas.addEventListener("pointercancel",endPointer);
+
+back.addEventListener("click",()=>location.href="index.html");
+
+function update(dt){
+  const seconds=dt/1000;
+
+  if(messageTimer>0){
+    messageTimer-=seconds;
+    if(messageTimer<=0)cycle.style.opacity="0";
+  }
+
+  receiver.pulse=Math.max(0,receiver.pulse-seconds*1.5);
+  receiver.glow=Math.max(0,receiver.glow-seconds*.8);
+
+  if(receiver.state==="excited"){
+    stateTimer+=seconds;
+    if(stateTimer>1.65)emit();
+  }else if(receiver.state==="returning"){
+    stateTimer+=seconds;
+    const tx=W*.18;
+    const ty=H*.5+Math.sin(interactionCount*.7)*Math.min(70,H*.12);
+    const dx=tx-carrier.x,dy=ty-carrier.y;
+    const d=Math.hypot(dx,dy)||1;
+    const speed=220;
+    carrier.x+=dx/d*speed*seconds;
+    carrier.y+=dy/d*speed*seconds;
+    if(d<18)completeReturn();
+  }
+
+  if(carrier.active && !carrier.grabbed){
+    // A very small drift keeps the carrier alive without taking control away.
+    carrier.x+=Math.sin(performance.now()*.0012)*.06;
+    carrier.y+=Math.cos(performance.now()*.0015)*.06;
+  }
+
+  if(carrier.active && dist(carrier,receiver)<46){
+    absorb();
+  }
+
+  for(const p of particles){
+    p.x+=p.vx*seconds;
+    p.y+=p.vy*seconds;
+    p.vx*=Math.pow(.08,seconds);
+    p.vy*=Math.pow(.08,seconds);
+    p.life-=seconds*1.4;
+  }
+  particles=particles.filter(p=>p.life>0);
+
+  for(const r of ripples)r.life-=seconds;
+  ripples=ripples.filter(r=>r.life>0);
+}
+
+function glow(x,y,r,a){
+  const g=ctx.createRadialGradient(x,y,0,x,y,r);
+  g.addColorStop(0,"rgba(255,255,255,"+a+")");
+  g.addColorStop(.35,"rgba(255,255,255,"+(a*.28)+")");
+  g.addColorStop(1,"rgba(255,255,255,0)");
+  ctx.fillStyle=g;
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+}
+
+function drawBackground(t){
+  ctx.fillStyle="#020202";
+  ctx.fillRect(0,0,W,H);
+
+  const g=ctx.createRadialGradient(receiver.x,receiver.y,0,receiver.x,receiver.y,Math.min(W,H)*.65);
+  g.addColorStop(0,"rgba(255,255,255,.025)");
+  g.addColorStop(1,"rgba(255,255,255,0)");
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  for(let i=0;i<34;i++){
+    const a=i*2.399;
+    const rr=(i%9)/9*Math.min(W,H)*.42+18;
+    const x=receiver.x+Math.cos(a+t*.000025)*rr;
+    const y=receiver.y+Math.sin(a+t*.000025)*rr;
+    ctx.globalAlpha=.045+(i%4)*.012;
+    ctx.fillStyle="#fff";
+    ctx.beginPath();ctx.arc(x,y,1,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+}
+
+function drawConnection(t){
+  if(!carrier.active && !carrier.returning)return;
+  const d=dist(carrier,receiver);
+  if(d<70)return;
+  const a=clamp(1-d/(Math.max(W,H)*.9),.03,.22);
+  ctx.strokeStyle="rgba(255,255,255,"+a+")";
+  ctx.lineWidth=1;
+  ctx.setLineDash([2,9]);
+  ctx.beginPath();
+  ctx.moveTo(carrier.x,carrier.y);
+  ctx.lineTo(receiver.x,receiver.y);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function drawReceiver(t){
+  const base=62;
+  const pulse=receiver.pulse;
+  const r=base+Math.sin(t*.003)*2+pulse*18;
+  glow(receiver.x,receiver.y,r*3,.10+receiver.glow*.12);
+
+  ctx.save();
+  ctx.translate(receiver.x,receiver.y);
+
+  ctx.strokeStyle="rgba(255,255,255,"+(receiver.state==="excited"?.8:.32)+")";
+  ctx.lineWidth=1;
+  ctx.beginPath();ctx.arc(0,0,r*1.45,0,Math.PI*2);ctx.stroke();
+
+  ctx.strokeStyle="rgba(255,255,255,"+(receiver.state==="excited"?.7:.22)+")";
+  ctx.beginPath();ctx.arc(0,0,r*1.85,-.8,.8);ctx.stroke();
+
+  if(receiver.state==="excited"){
+    ctx.fillStyle="#fff";
+    ctx.beginPath();ctx.arc(0,0,r*.42,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#000";
+    ctx.beginPath();ctx.arc(-r*.14,-r*.06,r*.055,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(r*.14,-r*.06,r*.055,0,Math.PI*2);ctx.fill();
+  }else{
+    ctx.strokeStyle="#fff";
+    ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(0,0,r*.42,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle="#fff";
+    ctx.beginPath();ctx.arc(0,0,r*.08,0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
+
+  ctx.globalAlpha=.34;
+  ctx.font="8px Arial";
+  ctx.letterSpacing="2px";
+  ctx.textAlign="center";
+  ctx.fillStyle="#fff";
+  ctx.fillText(receiver.state==="excited"?"EXCITED STATE":"RECEIVER",receiver.x,receiver.y+r*2.25);
+  ctx.globalAlpha=1;
+}
+
+function drawCarrier(t){
+  if(!carrier.active && !carrier.returning)return;
+  const r=carrier.radius+Math.sin(t*.006)*.8;
+  glow(carrier.x,carrier.y,r*5,.18);
+  ctx.fillStyle="#fff";
+  ctx.beginPath();ctx.arc(carrier.x,carrier.y,r,0,Math.PI*2);ctx.fill();
+
+  ctx.fillStyle="#000";
+  ctx.beginPath();ctx.arc(carrier.x-r*.22,carrier.y-r*.08,r*.10,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(carrier.x+r*.22,carrier.y-r*.08,r*.10,0,Math.PI*2);ctx.fill();
+
+  if(carrier.grabbed){
+    ctx.strokeStyle="rgba(255,255,255,.5)";
+    ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(carrier.x,carrier.y,r*2.3,0,Math.PI*2);ctx.stroke();
+  }
+
+  ctx.globalAlpha=.32;
+  ctx.font="8px Arial";
+  ctx.textAlign="center";
+  ctx.fillStyle="#fff";
+  ctx.fillText(carrier.returning?"EMITTED CARRIER":"CARRIER",carrier.x,carrier.y+r*2.6);
+  ctx.globalAlpha=1;
+}
+
+function drawParticles(){
+  for(const p of particles){
+    ctx.globalAlpha=Math.max(0,p.life)*.65;
+    ctx.fillStyle="#fff";
+    ctx.beginPath();ctx.arc(p.x,p.y,p.kind==="absorb"?1.7:1.3,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+}
+
+function draw(){
+  const t=performance.now();
+  drawBackground(t);
+  drawConnection(t);
+  drawReceiver(t);
+  drawCarrier(t);
+  drawParticles();
+}
+
+function loop(t){
+  const dt=Math.min(40,t-last);
+  last=t;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+resize();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
