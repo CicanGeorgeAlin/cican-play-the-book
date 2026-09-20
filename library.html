@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CICAN — SACRED LIBRARY</title>
+<meta name="description" content="CICAN Sacred Library — choose a text to experience, understand, and read.">
+<meta name="author" content="Cican George Alin">
+<meta name="theme-color" content="#000000">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:#000;color:#fff;font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;overflow-x:hidden}
+.page{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:30px 20px 46px}
+.background{position:fixed;inset:0;overflow:hidden;pointer-events:none;opacity:.028;z-index:0}
+.background-track{position:absolute;width:max-content;white-space:nowrap;color:#fff;font-size:clamp(90px,15vw,220px);font-weight:900;letter-spacing:-.08em;line-height:.8;animation:flow 65s linear infinite}
+.background-track:nth-child(1){top:12%}
+.background-track:nth-child(2){top:56%;animation-duration:78s;animation-direction:reverse}
+@keyframes flow{from{transform:translateX(-30%)}to{transform:translateX(0)}}
+.shell{position:relative;z-index:1;width:100%;max-width:720px;min-height:calc(100vh - 76px);display:flex;flex-direction:column;align-items:center}
+.top{width:100%;display:flex;justify-content:space-between;align-items:center}
+.logo{color:#fff;text-decoration:none;font-size:18px;font-weight:900;letter-spacing:-.06em}
+.back{color:rgba(255,255,255,.42);text-decoration:none;font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase}
+.main{width:100%;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:70px 0}
+.eyebrow{color:rgba(255,255,255,.42);font-size:10px;font-weight:700;letter-spacing:.35em;text-transform:uppercase;margin-bottom:22px}
+h1{font-size:clamp(28px,7vw,48px);font-weight:900;letter-spacing:-.055em;text-align:center}
+.intro{margin-top:15px;color:rgba(255,255,255,.38);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-align:center}
+.books{width:100%;margin-top:55px;display:flex;flex-direction:column;gap:10px}
+.book{width:100%;display:grid;grid-template-columns:50px minmax(0,1fr) 70px;align-items:center;min-height:82px;padding:12px 20px;border:1px solid rgba(255,255,255,.10);border-radius:16px;background:rgba(255,255,255,.018);color:#fff;cursor:pointer;text-align:left;transition:background .2s ease,border-color .2s ease,transform .2s ease}
+.book:hover{background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.25);transform:translateY(-2px)}
+.book.selected{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.72)}
+.number{color:rgba(255,255,255,.30);font-size:11px;font-weight:700;letter-spacing:.12em}
+.info{min-width:0}
+.title{font-size:17px;font-weight:800;line-height:1.25}
+.meta{margin-top:5px;color:rgba(255,255,255,.42);font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase}
+.time{color:rgba(255,255,255,.30);font-size:10px;font-weight:700;letter-spacing:.12em;text-align:right}
+.enter{margin-top:28px;min-width:170px;min-height:56px;border:1px solid rgba(255,255,255,.72);border-radius:100px;background:#fff;color:#000;font-size:13px;font-weight:900;letter-spacing:.22em;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease}
+.enter:hover{transform:scale(1.04);box-shadow:0 0 20px rgba(255,255,255,.35)}
+.enter:active{transform:scale(.97)}
+.enter:disabled{opacity:.28;cursor:default;box-shadow:none;transform:none}
+.hint{margin-top:17px;color:rgba(255,255,255,.20);font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;text-align:center}
+.footer{color:rgba(255,255,255,.22);font-size:9px;font-weight:800;letter-spacing:.30em;text-transform:uppercase}
+@media(max-width:600px){
+.page{padding:22px 14px 34px}
+.main{padding:55px 0}
+.books{margin-top:40px}
+.book{grid-template-columns:36px minmax(0,1fr) 54px;min-height:74px;padding:10px 13px}
+.title{font-size:14px}
+.meta{font-size:8px}
+.time{font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){
+.background-track,.book,.enter{animation:none;transition:none}
+}
+</style>
+</head>
+<body>
+<div class="background" aria-hidden="true">
+<div class="background-track">CICAN CICAN CICAN CICAN CICAN CICAN</div>
+<div class="background-track">CICAN CICAN CICAN CICAN CICAN CICAN</div>
+</div>
+<main class="page">
+<div class="shell">
+<header class="top">
+<a class="logo" href="index.html" aria-label="CICAN home">CICAN</a>
+<a class="back" href="index.html">BACK</a>
+</header>
+<section class="main" aria-labelledby="heading">
+<div class="eyebrow">SACRED LIBRARY</div>
+<h1 id="heading">CHOOSE A TEXT</h1>
+<div class="intro">The library chooses the texts. You choose the journey.</div>
+<div class="books" role="listbox" aria-label="Choose a sacred text">
+<button class="book selected" type="button" data-book="dhammapada" aria-selected="true">
+<span class="number">01</span>
+<span class="info"><span class="title">THE DHAMMAPADA</span><span class="meta">Buddhism · F. Max Müller</span></span>
+<span class="time">15 MIN</span>
+</button>
+<button class="book" type="button" data-book="tao-te-ching" aria-selected="false">
+<span class="number">02</span>
+<span class="info"><span class="title">TAO TE CHING</span><span class="meta">Taoism · Laozi · James Legge</span></span>
+<span class="time">15 MIN</span>
+</button>
+</div>
+<button class="enter" id="enter" type="button">ENTER</button>
+<div class="hint">SELECT A TEXT · THEN ENTER</div>
+</section>
+<footer class="footer">CICAN</footer>
+</div>
+</main>
+<script>
+const books = Array.from(document.querySelectorAll(".book"));
+const enter = document.getElementById("enter");
+let selected = "dhammapada";
+function selectBook(button){
+books.forEach(item => {
+const active = item === button;
+item.classList.toggle("selected", active);
+item.setAttribute("aria-selected", active ? "true" : "false");
+});
+selected = button.dataset.book;
+}
+books.forEach(button => button.addEventListener("click", () => selectBook(button)));
+enter.addEventListener("click", () => {
+window.location.href = "v16.html?book=" + encodeURIComponent(selected);
+});
+document.addEventListener("keydown", event => {
+if(event.key === "Enter" && document.activeElement.classList.contains("book")) {
+selectBook(document.activeElement);
+}
+});
+</script>
+</body>
+</html>
