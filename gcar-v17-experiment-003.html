@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>DHIE — GCAR EXPERIMENT 003</title>
+<meta name="description" content="Department of Human Intelligence and Evolution — GCAR Experiment 003: information, compatibility, absorption, reflection and discovery.">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020202;color:#fff;font-family:Arial,Helvetica,sans-serif}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+#hud{position:fixed;top:18px;left:18px;z-index:5;pointer-events:none;user-select:none}
+#brand{font-size:14px;font-weight:700;letter-spacing:2.7px}
+#phase{margin-top:7px;font-size:8px;letter-spacing:1.8px;opacity:.48}
+#signal{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:5;text-align:center;pointer-events:none;opacity:.42;font-size:8px;letter-spacing:2px;white-space:nowrap}
+#event{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:4;pointer-events:none;text-align:center;opacity:0;transition:opacity .22s}
+#event strong{display:block;font-size:10px;letter-spacing:2.5px}
+#event span{display:block;margin-top:7px;font-size:8px;letter-spacing:1.6px;opacity:.58}
+#hint{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:5;width:max-content;max-width:calc(100% - 40px);text-align:center;font-size:9px;letter-spacing:1.6px;line-height:1.6;opacity:.42;pointer-events:none;transition:opacity .7s}
+#back{position:fixed;right:18px;bottom:18px;z-index:8;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:10px 14px;font-size:8px;letter-spacing:1.8px;cursor:pointer}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud"><div id="brand">DEPARTMENT OF HUMAN INTELLIGENCE AND EVOLUTION</div><div id="phase">GCAR / EXPERIMENT 003</div></div>
+<div id="signal">OBSERVE</div>
+<div id="event"><strong id="eventMain">INTERACTION</strong><span id="eventSub">INFORMATION</span></div>
+<div id="hint">TWO CARRIERS / TWO RECEIVERS — DISCOVER THE MATCH</div>
+<button id="back" type="button">BACK</button>
+
+<script>
+/*
+DHIE — GCAR EXPERIMENT 003
+
+New rule:
+There are now TWO carriers and TWO receivers.
+Each carrier carries a different information signature.
+Each receiver is compatible with one signature.
+
+The player is not told the mapping.
+
+The visual signatures are deliberately subtle:
+one carrier has a short pulse pattern, the other a longer pattern.
+Receivers quietly echo their compatible pattern.
+
+Core:
+INFORMATION → COMPATIBILITY → INTERACTION → STATE CHANGE
+
+This is a deliberately simplified interactive model inspired by
+information exchange and microscopic state-transition concepts.
+It is not a literal quantum-mechanical simulation.
+*/
+
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+const signal=document.getElementById("signal");
+const eventEl=document.getElementById("event");
+const eventMain=document.getElementById("eventMain");
+const eventSub=document.getElementById("eventSub");
+const hint=document.getElementById("hint");
+const back=document.getElementById("back");
+
+let W=innerWidth,H=innerHeight,DPR=Math.min(devicePixelRatio||1,2);
+let last=performance.now();
+let eventTimer=0;
+let particles=[];
+let ripples=[];
+let pointer={x:0,y:0,down:false};
+let selected=null;
+let successful=0;
+let reflected=0;
+
+const carriers=[
+  {id:"short",x:0,y:0,r:7,active:true,grabbed:false,returning:false,returnTarget:null,pulse:0},
+  {id:"long",x:0,y:0,r:7,active:true,grabbed:false,returning:false,returnTarget:null,pulse:0}
+];
+
+const receivers=[
+  {id:"short",x:0,y:0,r:54,state:"idle",pulse:0,energy:0},
+  {id:"long",x:0,y:0,r:54,state:"idle",pulse:0,energy:0}
+];
+
+function resize(){
+  W=innerWidth;H=innerHeight;DPR=Math.min(devicePixelRatio||1,2);
+  canvas.width=W*DPR;canvas.height=H*DPR;
+  canvas.style.width=W+"px";canvas.style.height=H+"px";
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  layout();
+}
+addEventListener("resize",resize);
+
+function layout(){
+  receivers[0].x=W*.34; receivers[0].y=H*.38;
+  receivers[1].x=W*.66; receivers[1].y=H*.62;
+  carriers[0].x=W*.16; carriers[0].y=H*.38;
+  carriers[1].x=W*.16; carriers[1].y=H*.62;
+}
+layout();
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+
+function showEvent(main,sub,seconds=1){
+  eventMain.textContent=main;
+  eventSub.textContent=sub;
+  eventEl.style.opacity="1";
+  eventTimer=seconds;
+}
+function hideEvent(){eventEl.style.opacity="0"}
+
+function resetCarrier(c){
+  const index=carriers.indexOf(c);
+  c.x=W*.16;
+  c.y=index===0?H*.38:H*.62;
+  c.active=true;c.grabbed=false;c.returning=false;c.returnTarget=null;
+  c.pulse=0;
+}
+
+function makeParticles(x,y,count,kind){
+  for(let i=0;i<count;i++){
+    const a=Math.random()*Math.PI*2;
+    const speed=kind==="accept"?30+Math.random()*90:20+Math.random()*60;
+    particles.push({
+      x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,
+      life:1,size:kind==="accept"?1.7:1.2,kind
+    });
+  }
+}
+
+function compatible(carrier,receiver){
+  return carrier.id===receiver.id;
+}
+
+function accept(c,r){
+  c.active=false;c.grabbed=false;
+  r.state="excited";r.energy=1;r.pulse=1;
+  successful++;
+  showEvent("ABSORPTION","INFORMATION MATCHED",1.05);
+  signal.textContent="COMPATIBILITY DETECTED";
+  signal.style.opacity=".68";
+  hint.style.opacity=".10";
+  makeParticles(r.x,r.y,24,"accept");
+  ripples.push({x:r.x,y:r.y,r:16,life:1});
+  setTimeout(()=>{
+    if(r.state==="excited")emit(c,r);
+  },1450);
+}
+
+function reflect(c,r){
+  reflected++;
+  showEvent("REFLECTION","INFORMATION DID NOT MATCH",.85);
+  signal.textContent="NO ABSORPTION";
+  signal.style.opacity=".58";
+  makeParticles(c.x,c.y,11,"reject");
+  ripples.push({x:c.x,y:c.y,r:12,life:.7});
+  c.active=false;c.grabbed=false;c.returning=true;
+  c.returnTarget={x:W*.16,y:c.y};
+  c.r=6;
+  hint.style.opacity=".18";
+}
+
+function emit(c,r){
+  r.state="returning";r.energy=0;r.pulse=.65;
+  c.x=r.x;c.y=r.y;c.returning=true;c.active=false;
+  c.returnTarget={x:W*.16,y:(carriers.indexOf(c)===0?H*.38:H*.62)};
+  c.r=5.5;
+  showEvent("EMISSION","INFORMATION RELEASED",.9);
+  signal.textContent="STATE CHANGE RECORDED";
+  makeParticles(r.x,r.y,15,"emit");
+  ripples.push({x:r.x,y:r.y,r:20,life:1});
+}
+
+function finish(c,r){
+  if(r)r.state="idle";
+  c.returning=false;c.returnTarget=null;
+  resetCarrier(c);
+  signal.textContent="OBSERVE";
+  signal.style.opacity=".42";
+  hint.style.opacity=".42";
+}
+
+function pointerPosition(e){
+  const b=canvas.getBoundingClientRect();
+  return {x:e.clientX-b.left,y:e.clientY-b.top};
+}
+
+canvas.addEventListener("pointerdown",e=>{
+  const p=pointerPosition(e);
+  pointer.x=p.x;pointer.y=p.y;pointer.down=true;
+  try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+  selected=null;
+  for(const c of carriers){
+    if(c.active&&Math.hypot(p.x-c.x,p.y-c.y)<44){
+      selected=c;c.grabbed=true;hint.style.opacity=".08";break;
+    }
+  }
+});
+
+canvas.addEventListener("pointermove",e=>{
+  const p=pointerPosition(e);
+  pointer.x=p.x;pointer.y=p.y;
+  if(pointer.down&&selected&&selected.grabbed&&selected.active){
+    selected.x=p.x;selected.y=p.y;
+  }
+});
+
+function endPointer(){
+  pointer.down=false;
+  if(selected)selected.grabbed=false;
+  selected=null;
+}
+canvas.addEventListener("pointerup",endPointer);
+canvas.addEventListener("pointercancel",endPointer);
+back.addEventListener("click",()=>location.href="index.html");
+
+function update(dt){
+  const s=dt/1000;
+
+  if(eventTimer>0){
+    eventTimer-=s;
+    if(eventTimer<=0)hideEvent();
+  }
+
+  for(const r of receivers){
+    r.pulse=Math.max(0,r.pulse-s*1.45);
+    r.energy=Math.max(0,r.energy-s*.55);
+  }
+
+  for(const c of carriers){
+    c.pulse=(c.pulse+s*3)%10;
+
+    if(c.returning&&c.returnTarget){
+      const dx=c.returnTarget.x-c.x;
+      const dy=c.returnTarget.y-c.y;
+      const d=Math.hypot(dx,dy)||1;
+      const speed=245;
+      c.x+=dx/d*speed*s;c.y+=dy/d*speed*s;
+      const r=receivers.find(q=>q.state==="returning"&&q.id===c.id);
+      if(d<16)finish(c,r);
+    }
+
+    if(c.active&&!c.grabbed){
+      c.x+=Math.sin(performance.now()*.0012+(carriers.indexOf(c)*1.7))*.045;
+      c.y+=Math.cos(performance.now()*.0015+(carriers.indexOf(c)*1.1))*.045;
+    }
+
+    if(c.active){
+      for(const r of receivers){
+        if(dist(c,r)<r.r*.72){
+          if(compatible(c,r))accept(c,r);
+          else reflect(c,r);
+          break;
+        }
+      }
+    }
+  }
+
+  for(const p of particles){
+    p.x+=p.vx*s;p.y+=p.vy*s;
+    p.vx*=Math.pow(.08,s);p.vy*=Math.pow(.08,s);
+    p.life-=s*1.45;
+  }
+  particles=particles.filter(p=>p.life>0);
+
+  for(const r of ripples)r.life-=s;
+  ripples=ripples.filter(r=>r.life>0);
+}
+
+function glow(x,y,r,a){
+  const g=ctx.createRadialGradient(x,y,0,x,y,r);
+  g.addColorStop(0,"rgba(255,255,255,"+a+")");
+  g.addColorStop(.35,"rgba(255,255,255,"+(a*.25)+")");
+  g.addColorStop(1,"rgba(255,255,255,0)");
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+}
+
+function drawBackground(t){
+  ctx.fillStyle="#020202";ctx.fillRect(0,0,W,H);
+  const g=ctx.createRadialGradient(W*.5,H*.5,0,W*.5,H*.5,Math.min(W,H)*.7);
+  g.addColorStop(0,"rgba(255,255,255,.022)");
+  g.addColorStop(1,"rgba(255,255,255,0)");
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  for(let i=0;i<44;i++){
+    const a=i*2.399+t*.000018;
+    const rr=25+(i%12)/12*Math.min(W,H)*.43;
+    const x=W*.5+Math.cos(a)*rr;
+    const y=H*.5+Math.sin(a)*rr;
+    ctx.globalAlpha=.035+(i%5)*.009;
+    ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(x,y,1,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+}
+
+function drawReceiver(r,t){
+  const active=r.state==="excited";
+  const radius=r.r+Math.sin(t*.002+(r.id==="long"?1.4:0))*1.3+r.pulse*15;
+  glow(r.x,r.y,radius*3,.055+r.energy*.12);
+
+  ctx.save();ctx.translate(r.x,r.y);
+  ctx.strokeStyle="rgba(255,255,255,"+(active?.82:.30)+")";
+  ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,radius*1.25,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle="rgba(255,255,255,"+(active?.64:.17)+")";
+  ctx.beginPath();ctx.arc(0,0,radius*1.72,-.9,.9);ctx.stroke();
+
+  if(active){
+    ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(0,0,radius*.43,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#000";
+    ctx.beginPath();ctx.arc(-radius*.14,-radius*.06,radius*.055,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(radius*.14,-radius*.06,radius*.055,0,Math.PI*2);ctx.fill();
+  }else{
+    ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,radius*.40,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(0,0,radius*.075,0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
+
+  // Receiver quietly reveals its information pattern through a pulse.
+  const pulses=r.id==="short"?1:2;
+  for(let i=0;i<pulses;i++){
+    const p=((t/900+i*.5)%1);
+    ctx.globalAlpha=.13*(1-p);
+    ctx.strokeStyle="#fff";ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(r.x,r.y,radius*(1.55+p*.6),0,Math.PI*2);ctx.stroke();
+  }
+  ctx.globalAlpha=.30;ctx.font="8px Arial";ctx.textAlign="center";ctx.fillStyle="#fff";
+  ctx.fillText("RECEIVER",r.x,r.y+radius*2.08);ctx.globalAlpha=1;
+}
+
+function drawCarrier(c,t){
+  if(!c.active&&!c.returning)return;
+  const r=c.r+Math.sin(t*.006)*.75;
+  glow(c.x,c.y,r*5,.18);
+  ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(c.x,c.y,r,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#000";
+  ctx.beginPath();ctx.arc(c.x-r*.22,c.y-r*.08,r*.10,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(c.x+r*.22,c.y-r*.08,r*.10,0,Math.PI*2);ctx.fill();
+
+  // Information is represented by a pulse pattern, not a text label.
+  const count=c.id==="short"?1:2;
+  for(let i=0;i<count;i++){
+    ctx.globalAlpha=.18;
+    ctx.strokeStyle="#fff";ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(c.x,c.y,r*(2.0+i*.8),0,Math.PI*2);ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+  if(c.grabbed){
+    ctx.strokeStyle="rgba(255,255,255,.5)";ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(c.x,c.y,r*2.5,0,Math.PI*2);ctx.stroke();
+  }
+}
+
+function drawConnections(){
+  for(const c of carriers){
+    if(!c.active&&!c.returning)continue;
+    for(const r of receivers){
+      const d=dist(c,r);
+      if(d<75)continue;
+      const a=clamp(1-d/(Math.max(W,H)*.9),.025,.16);
+      ctx.strokeStyle="rgba(255,255,255,"+a+")";
+      ctx.lineWidth=1;ctx.setLineDash([2,11]);
+      ctx.beginPath();ctx.moveTo(c.x,c.y);ctx.lineTo(r.x,r.y);ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+}
+
+function drawParticles(){
+  for(const p of particles){
+    ctx.globalAlpha=Math.max(0,p.life)*.68;ctx.fillStyle="#fff";
+    ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+}
+
+function draw(){
+  const t=performance.now();
+  drawBackground(t);
+  drawConnections();
+  for(const r of receivers)drawReceiver(r,t);
+  for(const c of carriers)drawCarrier(c,t);
+  drawParticles();
+}
+
+function loop(t){
+  const dt=Math.min(40,t-last);last=t;
+  update(dt);draw();requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
