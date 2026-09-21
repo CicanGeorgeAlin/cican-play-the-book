@@ -1,56 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#000000">
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#000">
 <title>DHIE — Opening Experiment</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;color:#fff;font-family:Arial,Helvetica,sans-serif;touch-action:none}
-#stage{position:fixed;inset:0;overflow:hidden}#hud{position:fixed;top:22px;left:50%;transform:translateX(-50%);text-align:center;z-index:20;pointer-events:none;white-space:nowrap}
-#department{font-size:10px;letter-spacing:3px;opacity:.55;margin-bottom:7px}#title{font-size:12px;letter-spacing:4px;opacity:.82}
-#hint{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:2px;opacity:.45;z-index:20;pointer-events:none;text-align:center;transition:opacity .5s}
-.one{position:absolute;width:34px;height:34px;border-radius:50%;background:#fff;box-shadow:0 0 18px rgba(255,255,255,.45);will-change:left,top,width,height;cursor:pointer}
-.eye{position:absolute;width:6px;height:8px;border-radius:50%;background:#000;top:10px}.eye.a{left:9px}.eye.b{right:9px}
-.trail{position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;opacity:.18;pointer-events:none}
-.flash{position:absolute;border:1px solid rgba(255,255,255,.8);border-radius:50%;pointer-events:none;animation:expand .8s ease-out forwards}
-@keyframes expand{from{transform:scale(.2);opacity:.9}to{transform:scale(1.8);opacity:0}}
-#choice{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:40;background:rgba(0,0,0,.18)}
-.choiceBox{text-align:center;pointer-events:none}.choiceTitle{font-size:12px;letter-spacing:5px;margin-bottom:22px;opacity:.7}
-.choiceItems{display:flex;gap:34px;justify-content:center}.choiceItem{font-size:14px;letter-spacing:4px;opacity:.9;pointer-events:auto;cursor:pointer;padding:14px 18px;border:1px solid rgba(255,255,255,.18)}
-.choiceItem:hover{border-color:rgba(255,255,255,.55)}
-#result{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:50;background:#000;text-align:center}
-.resultMain{font-size:18px;letter-spacing:7px}.resultSub{margin-top:15px;font-size:10px;letter-spacing:3px;opacity:.5}
-#back{position:fixed;right:18px;top:18px;z-index:60;background:none;color:#fff;border:1px solid rgba(255,255,255,.2);padding:8px 10px;font-size:9px;letter-spacing:2px}
-</style>
-</head>
-<body>
-<div id="stage"></div>
-<div id="hud"><div id="department">DEPARTMENT OF HUMAN INTELLIGENCE AND EVOLUTION</div><div id="title">OPENING EXPERIMENT</div></div>
-<div id="hint">GROW</div><button id="back">BACK</button>
-<div id="choice"><div class="choiceBox"><div class="choiceTitle">YOU CREATED SOMETHING</div><div class="choiceItems"><div class="choiceItem" id="readChoice">READ</div><div class="choiceItem" id="deeperChoice">GO DEEPER</div></div></div></div>
-<div id="result"><div><div class="resultMain" id="resultMain"></div><div class="resultSub" id="resultSub"></div></div></div>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}html,body{width:100%;height:100%;overflow:hidden;background:#000;color:#fff;touch-action:none;font-family:Arial,sans-serif}
+.one{position:absolute;border-radius:50%;background:#fff;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 10px #fff,0 0 25px rgba(255,255,255,.8),0 0 45px rgba(255,255,255,.4)}
+.cican-face{position:absolute;left:50%;top:50%;width:42%;height:42%;transform:translate(-50%,-50%);pointer-events:none}.eye{position:absolute;width:22%;height:34%;top:28%;background:#000;border-radius:50%}.eye.left{left:18%}.eye.right{right:18%}
+.trail{position:absolute;width:5px;height:5px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);pointer-events:none;opacity:.8;box-shadow:0 0 6px #fff;animation:fade 1.5s linear forwards}@keyframes fade{to{opacity:0}}
+#hud{position:fixed;top:18px;left:18px;z-index:20;pointer-events:none}#brand{font-size:15px;font-weight:700;letter-spacing:2.3px}#phase{margin-top:6px;font-size:9px;letter-spacing:1.7px;opacity:.48}
+#hint{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:20;text-align:center;width:max-content;max-width:calc(100% - 40px);font-size:9px;letter-spacing:1.5px;line-height:1.7;opacity:.36;pointer-events:none}
+button{position:fixed;z-index:30;border:1px solid rgba(255,255,255,.2);border-radius:20px;background:rgba(0,0,0,.55);color:#fff;padding:10px 14px;font-size:8px;letter-spacing:1.8px}#back{right:18px;bottom:18px}
+#choice{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:radial-gradient(circle at center,rgba(255,255,255,.07),rgba(0,0,0,.98) 58%);padding:24px}.choice-panel{width:min(92vw,520px);padding:32px 24px;text-align:center;border:1px solid rgba(255,255,255,.18);border-radius:24px;background:rgba(0,0,0,.82);box-shadow:0 0 45px rgba(255,255,255,.06)}.choice-label{font-size:9px;letter-spacing:3px;opacity:.45;margin-bottom:15px}.choice-title{font-size:24px;letter-spacing:4px;margin-bottom:10px}.choice-sub{font-size:11px;letter-spacing:2px;opacity:.45;margin-bottom:26px}.choice-row{display:flex;gap:12px}.choice-row button{position:static;flex:1;border-radius:22px;background:#000;padding:13px 10px;font-size:10px;letter-spacing:2px}
+#result{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;text-align:center;background:#000}.result-main{font-size:22px;letter-spacing:6px}.result-sub{margin-top:14px;font-size:9px;letter-spacing:2px;opacity:.45}
+</style></head><body>
+<div id="hud"><div id="brand">DEPARTMENT OF HUMAN INTELLIGENCE AND EVOLUTION</div><div id="phase">DHIE / CICAN / OPENING</div></div><div id="hint">HOLD CICAN TO GROW · MOVE · RELEASE · DISCOVER</div><button id="back">BACK</button>
+<div id="choice"><div class="choice-panel"><div class="choice-label">TWO BECAME ONE</div><div class="choice-title">SOMETHING NEW</div><div class="choice-sub">WHERE DO YOU GO FROM HERE?</div><div class="choice-row"><button id="readChoice">READ</button><button id="deeperChoice">GO DEEPER</button></div></div></div>
+<div id="result"><div><div class="result-main" id="resultMain"></div><div class="result-sub" id="resultSub"></div></div></div>
 <script>
-const MIN_SIZE=34,MAX_SIZE=180,MERGE_DISTANCE=20,DOUBLE_TAP_TIME=350,TRAIL_DISTANCE=35;
-const stage=document.getElementById('stage'),hint=document.getElementById('hint');let ones=[],selectedOne=null,lastTap=0,mergeCount=0,locked=false,raf=0;
-function createOne(x,y,size=MIN_SIZE){const el=document.createElement('div');el.className='one';el.innerHTML='<span class="eye a"></span><span class="eye b"></span>';stage.appendChild(el);const one={el,x,y,targetX:x,targetY:y,size,lastTrailX:x,lastTrailY:y};ones.push(one);return one}
-function render(o){o.el.style.width=o.size+'px';o.el.style.height=o.size+'px';o.el.style.left=(o.x-o.size/2)+'px';o.el.style.top=(o.y-o.size/2)+'px'}
-function setHint(t,o=.45){hint.textContent=t;hint.style.opacity=o}
-function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
-function flash(x,y,s){const f=document.createElement('div');f.className='flash';f.style.width=s+'px';f.style.height=s+'px';f.style.left=(x-s/2)+'px';f.style.top=(y-s/2)+'px';stage.appendChild(f);setTimeout(()=>f.remove(),800)}
-function trail(o){if(Math.hypot(o.x-o.lastTrailX,o.y-o.lastTrailY)<TRAIL_DISTANCE)return;const t=document.createElement('div');t.className='trail';t.style.left=o.x+'px';t.style.top=o.y+'px';stage.appendChild(t);setTimeout(()=>t.remove(),500);o.lastTrailX=o.x;o.lastTrailY=o.y}
-function grow(o){if(o!==selectedOne||locked)return;o.size=Math.min(MAX_SIZE,o.size+.5);if(o.size>=MAX_SIZE)setHint('FULL — CREATE ANOTHER',.7)}
-function splitOne(o){if(locked||o.size<MAX_SIZE)return;const a=Math.random()*Math.PI*2,d=o.size*.8,n=createOne(o.x+Math.cos(a)*d,o.y+Math.sin(a)*d);n.targetX=o.x+Math.cos(a)*d;n.targetY=o.y+Math.sin(a)*d;setHint('GROW',.55);selectedOne=n}
-function merge(a,b){locked=true;mergeCount++;const x=(a.x+b.x)/2,y=(a.y+b.y)/2;a.el.remove();b.el.remove();ones=ones.filter(o=>o!==a&&o!==b);flash(x,y,Math.max(a.size,b.size));const n=createOne(x,y,MAX_SIZE);selectedOne=n;setTimeout(()=>{locked=false;if(mergeCount===1){setHint('SOMETHING NEW — EXPLORE',.75);document.getElementById('choice').style.display='flex'}else{setHint('GO DEEPER',.8);showResult('DHIE','THE EXPERIMENT CONTINUES')}},850)}
-function checkMerge(){if(locked)return;for(let i=0;i<ones.length;i++)for(let j=i+1;j<ones.length;j++){const a=ones[i],b=ones[j];if(a.size>=MAX_SIZE&&b.size>=MAX_SIZE&&dist(a,b)<=MERGE_DISTANCE){merge(a,b);return}}}
-function showResult(a,b){document.getElementById('resultMain').textContent=a;document.getElementById('resultSub').textContent=b;document.getElementById('result').style.display='flex'}
-function pointerDown(e){if(locked)return;const now=performance.now(),o=ones.find(v=>Math.hypot(v.x-e.clientX,v.y-e.clientY)<v.size/2+30);if(o){selectedOne=o;if(now-lastTap<DOUBLE_TAP_TIME){splitOne(o);lastTap=0;return}lastTap=now}else if(selectedOne&&selectedOne.size>=MAX_SIZE)splitOne(selectedOne)}
-function pointerMove(e){if(selectedOne&&!locked){selectedOne.targetX=e.clientX;selectedOne.targetY=e.clientY}}
-function pointerUp(){selectedOne=null}
-function animate(){for(const o of ones){o.x+=(o.targetX-o.x)*.10;o.y+=(o.targetY-o.y)*.10;render(o);trail(o);if(o===selectedOne)grow(o)}checkMerge();raf=requestAnimationFrame(animate)}
-document.addEventListener('pointerdown',pointerDown,{passive:true});document.addEventListener('pointermove',pointerMove,{passive:true});document.addEventListener('pointerup',pointerUp,{passive:true});
-document.getElementById('readChoice').onclick=()=>showResult('READ','THE TEXT AWAITS');document.getElementById('deeperChoice').onclick=()=>showResult('DHIE','THE EXPERIMENT CONTINUES');document.getElementById('back').onclick=()=>location.href='index.html';
-const first=createOne(innerWidth/2,innerHeight/2);selectedOne=first;setHint('GROW',.7);render(first);raf=requestAnimationFrame(animate);
-</script>
-</body>
-</html>
+/* The opening below deliberately preserves the established V16 CICAN interaction:
+MIN_SIZE 34, MAX_SIZE 180, DOUBLE_TAP_TIME 350, TRAIL_DISTANCE 35,
+MERGE_DISTANCE 20, movement interpolation *0.10, growth +0.5 while held.
+Only the post-merge destination is experimental. */
+const MIN_SIZE=34,MAX_SIZE=180,DOUBLE_TAP_TIME=350,TRAIL_DISTANCE=35,MERGE_DISTANCE=20;
+let ones=[],selectedOne=null,growing=false,lastTap=0,lastTappedOne=null,choiceOpen=false;
+const hint=document.getElementById("hint"),choice=document.getElementById("choice"),result=document.getElementById("result");
+function distance(ax,ay,bx,by){const dx=bx-ax,dy=by-ay;return Math.sqrt(dx*dx+dy*dy)}
+function createOne(px,py,startingSize=MIN_SIZE){
+ const element=document.createElement("div");element.className="one";
+ const face=document.createElement("div");face.className="cican-face";face.innerHTML='<div class="eye left"></div><div class="eye right"></div>';
+ element.appendChild(face);document.body.appendChild(element);
+ const one={x:px,y:py,targetX:px,targetY:py,size:startingSize,element,lastTrailX:px,lastTrailY:py};ones.push(one);updateOne(one);return one;
+}
+function updateOne(one){one.element.style.left=one.x+"px";one.element.style.top=one.y+"px";one.element.style.width=one.size+"px";one.element.style.height=one.size+"px"}
+function createTrail(x,y){const t=document.createElement("div");t.className="trail";t.style.left=x+"px";t.style.top=y+"px";document.body.appendChild(t);setTimeout(()=>t.remove(),1500)}
+function findClosestOne(x,y){let closest=null,best=Infinity;for(const one of ones){const d=distance(x,y,one.x,one.y);if(d<best){best=d;closest=one}}return closest}
+function splitOne(one){
+ const angle=Math.atan2(one.targetY-one.y,one.targetX-one.x);const nx=one.x+Math.cos(angle||0)*55,ny=one.y+Math.sin(angle||0)*55;
+ const newOne=createOne(nx,ny,MIN_SIZE);selectedOne=one;growing=false;hint.textContent="A SECOND CICAN EXISTS — GROW IT";hint.style.opacity=".48";return newOne;
+}
+function mergeOnes(a,b){
+ const x=(a.x+b.x)/2,y=(a.y+b.y)/2;a.element.remove();b.element.remove();ones=ones.filter(o=>o!==a&&o!==b);
+ const merged=createOne(x,y,Math.min(MAX_SIZE,a.size+b.size));selectedOne=merged;growing=false;
+ for(let i=0;i<55;i++){const ang=Math.random()*Math.PI*2,s=25+Math.random()*150,p=document.createElement("div");p.className="trail";p.style.width="3px";p.style.height="3px";p.style.left=x+"px";p.style.top=y+"px";p.style.animationDuration=(.8+Math.random()*.8)+"s";document.body.appendChild(p);p.animate([{transform:"translate(-50%,-50%) scale(1)",opacity:.8},{transform:"translate(calc(-50% + "+Math.cos(ang)*s+"px),calc(-50% + "+Math.sin(ang)*s+"px)) scale(.2)",opacity:0}],{duration:650+Math.random()*600,easing:"ease-out"}).onfinish=()=>p.remove()}
+ hint.textContent="TWO BECAME ONE — SOMETHING NEW";hint.style.opacity=".62";setTimeout(()=>{choiceOpen=true;choice.style.display="flex"},850);
+}
+function checkMerges(){if(ones.length<2)return;for(let i=0;i<ones.length;i++)for(let j=i+1;j<ones.length;j++){const a=ones[i],b=ones[j];if(a.size>=MAX_SIZE&&b.size>=MAX_SIZE&&distance(a.x,a.y,b.x,b.y)<=MERGE_DISTANCE){mergeOnes(a,b);return}}}
+function pointerDown(x,y){
+ if(choiceOpen)return;const now=Date.now(),closest=findClosestOne(x,y);if(!closest){lastTap=0;lastTappedOne=null;return}
+ if(now-lastTap<DOUBLE_TAP_TIME&&lastTappedOne===closest){splitOne(closest);lastTap=0;lastTappedOne=null;return}
+ lastTap=now;lastTappedOne=closest;selectedOne=closest;growing=true;closest.targetX=x;closest.targetY=y;hint.style.opacity=".12";
+}
+function pointerMove(x,y){if(choiceOpen||!growing||!selectedOne)return;selectedOne.targetX=x;selectedOne.targetY=y}
+function pointerUp(){growing=false}
+document.addEventListener("pointerdown",e=>{if(e.target.closest("button"))return;pointerDown(e.clientX,e.clientY)});
+document.addEventListener("pointermove",e=>{if(!e.target.closest("button"))pointerMove(e.clientX,e.clientY)});
+document.addEventListener("pointerup",e=>{if(!e.target.closest("button"))pointerUp()});document.addEventListener("pointercancel",pointerUp);
+function showResult(main,sub){choice.style.display="none";choiceOpen=false;result.style.display="flex";document.getElementById("resultMain").textContent=main;document.getElementById("resultSub").textContent=sub}
+document.getElementById("readChoice").onclick=()=>showResult("READ","THE TEXT AWAITS");document.getElementById("deeperChoice").onclick=()=>showResult("DHIE","THE EXPERIMENT CONTINUES");document.getElementById("back").onclick=()=>location.href="index.html";
+function animate(){for(const one of ones){
+ one.x+=(one.targetX-one.x)*0.10;one.y+=(one.targetY-one.y)*0.10;
+ if(growing&&selectedOne===one)one.size=Math.min(MAX_SIZE,one.size+0.5);
+ if(distance(one.x,one.y,one.lastTrailX,one.lastTrailY)>=TRAIL_DISTANCE){createTrail(one.x,one.y);one.lastTrailX=one.x;one.lastTrailY=one.y}
+ updateOne(one)}checkMerges();requestAnimationFrame(animate)}
+selectedOne=createOne(innerWidth/2,innerHeight/2);requestAnimationFrame(animate);
+</script></body></html>
