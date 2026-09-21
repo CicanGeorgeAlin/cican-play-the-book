@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>DHIE — GCAR EXPERIMENT 002</title>
+<meta name="description" content="Department of Human Intelligence and Evolution — GCAR Experiment 002: compatibility, interaction, state change and discovery.">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020202;color:#fff;font-family:Arial,Helvetica,sans-serif}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+#hud{position:fixed;top:18px;left:18px;z-index:5;pointer-events:none;user-select:none}
+#brand{font-size:14px;font-weight:700;letter-spacing:2.7px}
+#phase{margin-top:7px;font-size:8px;letter-spacing:1.8px;opacity:.48}
+#signal{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:5;text-align:center;pointer-events:none;opacity:.42;font-size:8px;letter-spacing:2px;white-space:nowrap}
+#hint{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:5;width:max-content;max-width:calc(100% - 40px);text-align:center;font-size:9px;letter-spacing:1.6px;line-height:1.6;opacity:.42;pointer-events:none;transition:opacity .7s}
+#event{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:4;pointer-events:none;text-align:center;opacity:0;transition:opacity .22s}
+#event strong{display:block;font-size:10px;letter-spacing:2.5px}
+#event span{display:block;margin-top:7px;font-size:8px;letter-spacing:1.6px;opacity:.58}
+#back{position:fixed;right:18px;bottom:18px;z-index:8;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:10px 14px;font-size:8px;letter-spacing:1.8px;cursor:pointer}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud"><div id="brand">DEPARTMENT OF HUMAN INTELLIGENCE AND EVOLUTION</div><div id="phase">GCAR / EXPERIMENT 002</div></div>
+<div id="signal">OBSERVE</div>
+<div id="event"><strong id="eventMain">INTERACTION</strong><span id="eventSub">STATE CHANGE</span></div>
+<div id="hint">TOUCH / DRAG THE CARRIER — DISCOVER WHAT HAPPENS</div>
+<button id="back" type="button">BACK</button>
+
+<script>
+/*
+DHIE — GCAR EXPERIMENT 002
+
+New rule:
+There are now TWO possible receivers.
+
+The player is not told which interaction is compatible.
+The experiment is designed around discovery.
+
+Core:
+CARRIER → RECEIVER → COMPATIBILITY → INTERACTION → STATE CHANGE
+
+This is a deliberately simplified interactive model inspired by
+microscopic state-transition and emergence concepts. It is not a
+literal quantum-mechanical simulation.
+*/
+
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+const signal=document.getElementById("signal");
+const eventEl=document.getElementById("event");
+const eventMain=document.getElementById("eventMain");
+const eventSub=document.getElementById("eventSub");
+const hint=document.getElementById("hint");
+const back=document.getElementById("back");
+
+let W=innerWidth,H=innerHeight,DPR=Math.min(devicePixelRatio||1,2);
+const receivers=[];
+const carrier={
+  x:0,y:0,radius:7,
+  active:true,grabbed:false,returning:false,
+  returnTarget:null,
+  energy:1
+};
+
+let particles=[];
+let ripples=[];
+let last=performance.now();
+let elapsed=0;
+let pointer={x:0,y:0,down:false};
+let successfulInteractions=0;
+let rejectedInteractions=0;
+let eventTimer=0;
+
+function resize(){
+  W=innerWidth;H=innerHeight;DPR=Math.min(devicePixelRatio||1,2);
+  canvas.width=W*DPR;canvas.height=H*DPR;
+  canvas.style.width=W+"px";canvas.style.height=H+"px";
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  positionWorld();
+}
+addEventListener("resize",resize);
+
+function positionWorld(){
+  receivers[0].x=W*.5;
+  receivers[0].y=H*.35;
+  receivers[1].x=W*.5;
+  receivers[1].y=H*.67;
+  if(carrier.active&&!carrier.grabbed){
+    carrier.x=W*.16;
+    carrier.y=H*.5;
+  }
+}
+receivers.push({
+  x:0,y:0,r:56,
+  kind:"A",
+  state:"idle",
+  pulse:0,
+  energy:0,
+  phase:0
+});
+receivers.push({
+  x:0,y:0,r:56,
+  kind:"B",
+  state:"idle",
+  pulse:0,
+  energy:0,
+  phase:Math.PI
+});
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+
+function showEvent(main,sub,seconds=1){
+  eventMain.textContent=main;
+  eventSub.textContent=sub;
+  eventEl.style.opacity="1";
+  eventTimer=seconds;
+}
+function hideEvent(){
+  eventEl.style.opacity="0";
+}
+
+function resetCarrier(){
+  carrier.x=W*.16;
+  carrier.y=H*.5;
+  carrier.radius=7;
+  carrier.active=true;
+  carrier.grabbed=false;
+  carrier.returning=false;
+  carrier.returnTarget=null;
+  carrier.energy=1;
+}
+
+function makeParticles(x,y,count,kind){
+  for(let i=0;i<count;i++){
+    const a=Math.random()*Math.PI*2;
+    const speed=kind==="accept"?30+Math.random()*90:20+Math.random()*55;
+    particles.push({
+      x,y,
+      vx:Math.cos(a)*speed,
+      vy:Math.sin(a)*speed,
+      life:1,
+      size:kind==="accept"?1.7:1.2,
+      kind
+    });
+  }
+}
+
+function accept(receiver){
+  carrier.active=false;
+  carrier.grabbed=false;
+  receiver.state="excited";
+  receiver.energy=1;
+  receiver.pulse=1;
+  successfulInteractions++;
+  showEvent("ABSORPTION","INFORMATION ACCEPTED",1.05);
+  signal.textContent="COMPATIBILITY DETECTED";
+  signal.style.opacity=".68";
+  hint.style.opacity=".10";
+  makeParticles(receiver.x,receiver.y,24,"accept");
+  ripples.push({x:receiver.x,y:receiver.y,r:18,life:1});
+  setTimeout(()=>{
+    if(receiver.state==="excited")emit(receiver);
+  },1450);
+}
+
+function reject(receiver){
+  rejectedInteractions++;
+  showEvent("NO ABSORPTION","NO STATE CHANGE",.8);
+  signal.textContent="INTERACTION OBSERVED";
+  signal.style.opacity=".58";
+  makeParticles(carrier.x,carrier.y,10,"reject");
+  ripples.push({x:carrier.x,y:carrier.y,r:12,life:.7});
+  carrier.returning=true;
+  carrier.active=false;
+  carrier.returnTarget={x:W*.16,y:H*.5};
+  carrier.grabbed=false;
+  carrier.radius=6;
+  hint.style.opacity=".18";
+}
+
+function emit(receiver){
+  receiver.state="returning";
+  receiver.energy=0;
+  receiver.pulse=.65;
+  carrier.x=receiver.x;
+  carrier.y=receiver.y;
+  carrier.returning=true;
+  carrier.active=false;
+  carrier.returnTarget={x:W*.16,y:H*.5};
+  carrier.radius=5.5;
+  carrier.energy=.85;
+  showEvent("EMISSION","INFORMATION RELEASED",.9);
+  signal.textContent="STATE CHANGE RECORDED";
+  makeParticles(receiver.x,receiver.y,15,"emit");
+  ripples.push({x:receiver.x,y:receiver.y,r:20,life:1});
+}
+
+function finishReturn(receiver){
+  if(receiver)receiver.state="idle";
+  carrier.returning=false;
+  carrier.returnTarget=null;
+  resetCarrier();
+  signal.textContent="OBSERVE";
+  signal.style.opacity=".42";
+  hint.style.opacity=".42";
+}
+
+function pointerPosition(e){
+  const r=canvas.getBoundingClientRect();
+  return {x:e.clientX-r.left,y:e.clientY-r.top};
+}
+
+canvas.addEventListener("pointerdown",e=>{
+  const p=pointerPosition(e);
+  pointer.x=p.x;pointer.y=p.y;pointer.down=true;
+  try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+  if(carrier.active && Math.hypot(p.x-carrier.x,p.y-carrier.y)<44){
+    carrier.grabbed=true;
+    hint.style.opacity=".08";
+  }
+});
+canvas.addEventListener("pointermove",e=>{
+  const p=pointerPosition(e);
+  pointer.x=p.x;pointer.y=p.y;
+  if(pointer.down&&carrier.grabbed&&carrier.active){
+    carrier.x=p.x;carrier.y=p.y;
+  }
+});
+function endPointer(){
+  pointer.down=false;
+  carrier.grabbed=false;
+}
+canvas.addEventListener("pointerup",endPointer);
+canvas.addEventListener("pointercancel",endPointer);
+back.addEventListener("click",()=>location.href="index.html");
+
+function update(dt){
+  const s=dt/1000;
+  elapsed+=dt;
+
+  if(eventTimer>0){
+    eventTimer-=s;
+    if(eventTimer<=0)hideEvent();
+  }
+
+  for(const r of receivers){
+    r.pulse=Math.max(0,r.pulse-s*1.45);
+    r.energy=Math.max(0,r.energy-s*.55);
+  }
+
+  if(carrier.returning&&carrier.returnTarget){
+    const dx=carrier.returnTarget.x-carrier.x;
+    const dy=carrier.returnTarget.y-carrier.y;
+    const d=Math.hypot(dx,dy)||1;
+    const speed=240;
+    carrier.x+=dx/d*speed*s;
+    carrier.y+=dy/d*speed*s;
+    if(d<16){
+      const returningReceiver=receivers.find(r=>r.state==="returning"||r.state==="excited");
+      finishReturn(returningReceiver);
+    }
+  }
+
+  if(carrier.active&&!carrier.grabbed){
+    carrier.x+=Math.sin(performance.now()*.0012)*.05;
+    carrier.y+=Math.cos(performance.now()*.0015)*.05;
+  }
+
+  if(carrier.active){
+    for(const r of receivers){
+      if(dist(carrier,r)<r.r*.72){
+        // Receiver A is compatible with the carrier's current state.
+        // Receiver B is deliberately incompatible for this experiment.
+        if(r.kind==="A")accept(r);
+        else reject(r);
+        break;
+      }
+    }
+  }
+
+  for(const p of particles){
+    p.x+=p.vx*s;
+    p.y+=p.vy*s;
+    p.vx*=Math.pow(.08,s);
+    p.vy*=Math.pow(.08,s);
+    p.life-=s*1.45;
+  }
+  particles=particles.filter(p=>p.life>0);
+
+  for(const r of ripples)r.life-=s;
+  ripples=ripples.filter(r=>r.life>0);
+}
+
+function glow(x,y,r,a){
+  const g=ctx.createRadialGradient(x,y,0,x,y,r);
+  g.addColorStop(0,"rgba(255,255,255,"+a+")");
+  g.addColorStop(.35,"rgba(255,255,255,"+(a*.25)+")");
+  g.addColorStop(1,"rgba(255,255,255,0)");
+  ctx.fillStyle=g;
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+}
+
+function drawBackground(t){
+  ctx.fillStyle="#020202";
+  ctx.fillRect(0,0,W,H);
+
+  const g=ctx.createRadialGradient(W*.5,H*.5,0,W*.5,H*.5,Math.min(W,H)*.7);
+  g.addColorStop(0,"rgba(255,255,255,.022)");
+  g.addColorStop(1,"rgba(255,255,255,0)");
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  for(let i=0;i<42;i++){
+    const a=i*2.399+t*.000018;
+    const rr=28+(i%11)/11*Math.min(W,H)*.42;
+    const x=W*.5+Math.cos(a)*rr;
+    const y=H*.5+Math.sin(a)*rr;
+    ctx.globalAlpha=.035+(i%5)*.009;
+    ctx.fillStyle="#fff";
+    ctx.beginPath();ctx.arc(x,y,1,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+}
+
+function drawWorldLines(){
+  for(let i=0;i<receivers.length;i++){
+    const r=receivers[i];
+    ctx.strokeStyle="rgba(255,255,255,.045)";
+    ctx.lineWidth=1;
+    ctx.setLineDash([1,13]);
+    ctx.beginPath();
+    ctx.moveTo(carrier.x,carrier.y);
+    ctx.lineTo(r.x,r.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+function drawReceiver(r,t){
+  const pulse=r.pulse;
+  const radius=r.r+Math.sin(t*.002+r.phase)*1.5+pulse*15;
+  glow(r.x,r.y,radius*3,.055+r.energy*.12);
+
+  ctx.save();
+  ctx.translate(r.x,r.y);
+
+  const active=r.state==="excited";
+  ctx.strokeStyle="rgba(255,255,255,"+(active?.82:.30)+")";
+  ctx.lineWidth=1;
+  ctx.beginPath();ctx.arc(0,0,radius*1.25,0,Math.PI*2);ctx.stroke();
+
+  ctx.strokeStyle="rgba(255,255,255,"+(active?.64:.17)+")";
+  ctx.beginPath();
+  ctx.arc(0,0,radius*1.72,-.9,.9);
+  ctx.stroke();
+
+  if(active){
+    ctx.fillStyle="#fff";
+    ctx.beginPath();ctx.arc(0,0,radius*.43,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#000";
+    ctx.beginPath();ctx.arc(-radius*.14,-radius*.06,radius*.055,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(radius*.14,-radius*.06,radius*.055,0,Math.PI*2);ctx.fill();
+  }else{
+    ctx.strokeStyle="#fff";
+    ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(0,0,radius*.40,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle="#fff";
+    ctx.beginPath();ctx.arc(0,0,radius*.075,0,Math.PI*2);ctx.fill();
+  }
+
+  ctx.restore();
+
+  ctx.globalAlpha=.30;
+  ctx.font="8px Arial";
+  ctx.textAlign="center";
+  ctx.fillStyle="#fff";
+  ctx.fillText("RECEIVER",r.x,r.y+radius*2.08);
+  ctx.globalAlpha=1;
+}
+
+function drawCarrier(t){
+  if(!carrier.active&&!carrier.returning)return;
+  const r=carrier.radius+Math.sin(t*.006)*.8;
+  glow(carrier.x,carrier.y,r*5,.18);
+  ctx.fillStyle="#fff";
+  ctx.beginPath();ctx.arc(carrier.x,carrier.y,r,0,Math.PI*2);ctx.fill();
+
+  ctx.fillStyle="#000";
+  ctx.beginPath();ctx.arc(carrier.x-r*.22,carrier.y-r*.08,r*.10,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(carrier.x+r*.22,carrier.y-r*.08,r*.10,0,Math.PI*2);ctx.fill();
+
+  if(carrier.grabbed){
+    ctx.strokeStyle="rgba(255,255,255,.5)";
+    ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(carrier.x,carrier.y,r*2.3,0,Math.PI*2);ctx.stroke();
+  }
+}
+
+function drawParticles(){
+  for(const p of particles){
+    ctx.globalAlpha=Math.max(0,p.life)*.68;
+    ctx.fillStyle="#fff";
+    ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+}
+
+function draw(){
+  const t=performance.now();
+  drawBackground(t);
+  drawWorldLines();
+  for(const r of receivers)drawReceiver(r,t);
+  drawCarrier(t);
+  drawParticles();
+
+  if(carrier.active&&!carrier.grabbed){
+    ctx.globalAlpha=.22;
+    ctx.font="8px Arial";
+    ctx.textAlign="center";
+    ctx.fillStyle="#fff";
+    ctx.fillText("CARRIER",carrier.x,carrier.y+20);
+    ctx.globalAlpha=1;
+  }
+}
+
+function loop(t){
+  const dt=Math.min(40,t-last);
+  last=t;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+
+resize();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
