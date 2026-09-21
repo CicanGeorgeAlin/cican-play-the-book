@@ -1583,6 +1583,7 @@ function updateTaoExperience() {
 ================================================= */
 
 let readObjects = [];
+let mergeDiscoveryStage = 0;
 let gatewayChoices = [];
 
 let currentBook = null;
@@ -1945,7 +1946,19 @@ function mergeOnes(
 
 
     if (createsKnowledge) {
-        createGatewayChoices(mergeX, mergeY);
+        mergeDiscoveryStage++;
+
+        if (mergeDiscoveryStage === 1) {
+            createReadGateway(
+                mergeX,
+                mergeY
+            );
+        } else if (mergeDiscoveryStage === 2) {
+            createDhieGateway(
+                mergeX,
+                mergeY
+            );
+        }
     }
 }
 
@@ -2010,68 +2023,105 @@ function checkForMerges() {
 }
 
 
-function createGatewayChoices(px, py) {
-    const read = createGatewayChoice("READ", px - 52, py, function() {
-        window.location.href = "library.html";
-    });
-
-    const dhie = createGatewayChoice("DHIE", px + 52, py, function() {
-        window.location.href = "dhie.html";
-    }, true);
-
-    return [read, dhie];
-}
-
-function createGatewayChoice(label, px, py, action, isDhie) {
+function createGatewayObject(label, px, py, action, isDhie) {
     const element = document.createElement("div");
     element.className = "gateway-choice" + (isDhie ? " dhie" : "");
     element.textContent = label;
     document.body.appendChild(element);
 
-    let dragging = false;
-    let moved = false;
-    let downX = 0;
-    let downY = 0;
-    let targetX = px;
-    let targetY = py;
-    let x = px;
-    let y = py;
+    const choice = {
+        x: px,
+        y: py,
+        targetX: px,
+        targetY: py,
+        element: element,
+        dragging: false,
+        moved: false,
+        downX: 0,
+        downY: 0,
+        action: action
+    };
+
+    gatewayChoices.push(choice);
 
     element.addEventListener("pointerdown", function(e) {
         e.preventDefault();
         e.stopPropagation();
-        dragging = true;
-        moved = false;
-        downX = e.clientX;
-        downY = e.clientY;
-        try { element.setPointerCapture(e.pointerId); } catch (_) {}
+
+        choice.dragging = true;
+        choice.moved = false;
+        choice.downX = e.clientX;
+        choice.downY = e.clientY;
+
+        try {
+            element.setPointerCapture(e.pointerId);
+        } catch (_) {}
     });
 
     element.addEventListener("pointermove", function(e) {
-        if (!dragging) return;
+        if (!choice.dragging) return;
+
         e.preventDefault();
         e.stopPropagation();
-        if (distance(e.clientX,e.clientY,downX,downY) > 8) moved = true;
-        targetX = e.clientX;
-        targetY = e.clientY;
+
+        if (
+            distance(
+                e.clientX,
+                e.clientY,
+                choice.downX,
+                choice.downY
+            ) > 8
+        ) {
+            choice.moved = true;
+        }
+
+        choice.targetX = e.clientX;
+        choice.targetY = e.clientY;
     });
 
     element.addEventListener("pointerup", function(e) {
-        if (!dragging) return;
+        if (!choice.dragging) return;
+
         e.preventDefault();
         e.stopPropagation();
-        dragging = false;
-        if (!moved) action();
+
+        choice.dragging = false;
+
+        if (!choice.moved) {
+            choice.action();
+        }
     });
 
     element.addEventListener("pointercancel", function(e) {
         e.stopPropagation();
-        dragging = false;
+        choice.dragging = false;
     });
 
-    gatewayChoices.push({
-        element, x, y, targetX, targetY
-    });
+    return choice;
+}
+
+function createReadGateway(px, py) {
+    return createGatewayObject(
+        "READ",
+        px,
+        py,
+        function() {
+            window.location.href = "library.html";
+        },
+        false
+    );
+}
+
+function createDhieGateway(px, py) {
+    return createGatewayObject(
+        "DHIE",
+        px,
+        py,
+        function() {
+            window.location.href = "dhie.html";
+        },
+        true
+    );
 }
 
 /* =================================================
@@ -3641,6 +3691,7 @@ function resetGame() {
     readObjects = [];
     gatewayChoices.forEach(choice => choice.element.remove());
     gatewayChoices = [];
+    mergeDiscoveryStage = 0;
 
 
     /*
