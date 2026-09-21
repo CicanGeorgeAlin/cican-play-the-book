@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>DHIE — GCAR EXPERIMENT 005</title>
+<meta name="description" content="Department of Human Intelligence and Evolution — GCAR Experiment 005. A new entity continues the interaction.">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020202;color:#fff;font-family:Arial,Helvetica,sans-serif}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+#hud{position:fixed;top:18px;left:18px;z-index:5;pointer-events:none;user-select:none}
+#brand{font-size:14px;font-weight:700;letter-spacing:2.7px}
+#phase{margin-top:7px;font-size:8px;letter-spacing:1.8px;opacity:.48}
+#signal{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:5;text-align:center;pointer-events:none;opacity:.42;font-size:8px;letter-spacing:2px;white-space:nowrap}
+#event{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:4;pointer-events:none;text-align:center;opacity:0;transition:opacity .22s}
+#event strong{display:block;font-size:11px;letter-spacing:3px}
+#event span{display:block;margin-top:7px;font-size:8px;letter-spacing:1.6px;opacity:.58}
+#hint{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:5;width:max-content;max-width:calc(100% - 40px);text-align:center;font-size:9px;letter-spacing:1.6px;line-height:1.6;opacity:.4;pointer-events:none;transition:opacity .7s}
+#back{position:fixed;right:18px;bottom:18px;z-index:8;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:10px 14px;font-size:8px;letter-spacing:1.8px;cursor:pointer}
+#reset{position:fixed;left:18px;bottom:18px;z-index:8;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.45);color:#fff;border-radius:999px;padding:10px 14px;font-size:8px;letter-spacing:1.8px;cursor:pointer;opacity:.62}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud"><div id="brand">DEPARTMENT OF HUMAN INTELLIGENCE AND EVOLUTION</div><div id="phase">DHIE / GCAR / EXPERIMENT 005</div></div>
+<div id="signal">OBSERVE</div>
+<div id="event"><strong id="eventMain">FORMATION</strong><span id="eventSub">NEW ENTITY</span></div>
+<div id="hint">A NEW ENTITY EXISTS — DISCOVER WHAT IT CAN DO</div>
+<button id="reset" type="button">RESET</button>
+<button id="back" type="button">BACK</button>
+
+<script>
+/*
+DHIE — GCAR EXPERIMENT 005
+
+New rule:
+The entity created by combination remains part of the system and can
+interact with the original environment.
+
+The experiment deliberately introduces only one new capability:
+the created entity can be moved and can interact with the world.
+
+This is a simplified emergent-system experiment, not a literal simulation
+of chemistry or quantum mechanics.
+*/
+
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+const signal=document.getElementById("signal");
+const eventEl=document.getElementById("event");
+const eventMain=document.getElementById("eventMain");
+const eventSub=document.getElementById("eventSub");
+const hint=document.getElementById("hint");
+const resetBtn=document.getElementById("reset");
+const back=document.getElementById("back");
+
+let W=innerWidth,H=innerHeight,DPR=Math.min(devicePixelRatio||1,2);
+let last=performance.now(),eventTimer=0;
+let pointer={x:0,y:0,down:false};
+let particles=[],ripples=[];
+let phase=0;
+
+const entities=[
+  {id:"A",x:0,y:0,r:13,active:true,grabbed:false},
+  {id:"B",x:0,y:0,r:13,active:true,grabbed:false}
+];
+const result={
+  x:0,y:0,r:31,active:false,grabbed:false,
+  pulse:0,energy:0
+};
+
+const field=[
+  {x:.66,y:.31,r:11},
+  {x:.78,y:.64,r:11},
+  {x:.56,y:.73,r:11}
+];
+
+function resize(){
+  W=innerWidth;H=innerHeight;DPR=Math.min(devicePixelRatio||1,2);
+  canvas.width=W*DPR;canvas.height=H*DPR;
+  canvas.style.width=W+"px";canvas.style.height=H+"px";
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  layout();
+}
+addEventListener("resize",resize);
+
+function layout(){
+  if(!result.active){
+    entities[0].x=W*.22;entities[0].y=H*.42;
+    entities[1].x=W*.22;entities[1].y=H*.58;
+  }
+  result.x=W*.58;result.y=H*.5;
+}
+layout();
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+
+function showEvent(main,sub,seconds=1){
+  eventMain.textContent=main;
+  eventSub.textContent=sub;
+  eventEl.style.opacity="1";
+  eventTimer=seconds;
+}
+function hideEvent(){eventEl.style.opacity="0"}
+
+function reset(){
+  phase=0;
+  result.active=false;
+  result.grabbed=false;
+  result.pulse=0;
+  result.energy=0;
+  entities[0].active=true;entities[1].active=true;
+  entities[0].grabbed=false;entities[1].grabbed=false;
+  entities[0].x=W*.22;entities[0].y=H*.42;
+  entities[1].x=W*.22;entities[1].y=H*.58;
+  particles=[];ripples=[];
+  signal.textContent="OBSERVE";
+  signal.style.opacity=".42";
+  hint.textContent="TWO ENTITIES — DISCOVER WHAT HAPPENS WHEN THEY MEET";
+  hint.style.opacity=".4";
+  hideEvent();
+}
+
+function makeParticles(x,y,count,speed=55){
+  for(let i=0;i<count;i++){
+    const a=Math.random()*Math.PI*2;
+    const s=speed*.45+Math.random()*speed;
+    particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,size:1+Math.random()*1.2});
+  }
+}
+
+function formNewEntity(){
+  if(phase!==0)return;
+  phase=1;
+  result.x=(entities[0].x+entities[1].x)/2;
+  result.y=(entities[0].y+entities[1].y)/2;
+  result.active=true;
+  result.pulse=1;
+  result.energy=1;
+  entities[0].active=false;
+  entities[1].active=false;
+
+  signal.textContent="NEW STATE";
+  signal.style.opacity=".72";
+  showEvent("TWO BECOME ONE","NEW ENTITY FORMED",1.35);
+  hint.textContent="NOW MOVE THE NEW ENTITY";
+  hint.style.opacity=".58";
+
+  for(let i=0;i<38;i++){
+    const a=Math.random()*Math.PI*2,s=35+Math.random()*120;
+    particles.push({x:result.x,y:result.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,size:1+Math.random()*1.5});
+  }
+  ripples.push({x:result.x,y:result.y,r:15,life:1});
+}
+
+function pointerPosition(e){
+  const b=canvas.getBoundingClientRect();
+  return {x:e.clientX-b.left,y:e.clientY-b.top};
+}
+
+canvas.addEventListener("pointerdown",e=>{
+  const p=pointerPosition(e);
+  pointer.x=p.x;pointer.y=p.y;pointer.down=true;
+  try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+  if(result.active){
+    if(Math.hypot(p.x-result.x,p.y-result.y)<58){
+      result.grabbed=true;
+      hint.style.opacity=".1";
+    }
+    return;
+  }
+  for(const entity of entities){
+    if(entity.active&&Math.hypot(p.x-entity.x,p.y-entity.y)<42){
+      entity.grabbed=true;
+      hint.style.opacity=".08";
+      break;
+    }
+  }
+});
+
+canvas.addEventListener("pointermove",e=>{
+  const p=pointerPosition(e);
+  pointer.x=p.x;pointer.y=p.y;
+  if(!pointer.down)return;
+
+  if(result.active&&result.grabbed){
+    result.x=p.x;result.y=p.y;
+    return;
+  }
+
+  for(const entity of entities){
+    if(entity.grabbed&&entity.active){
+      entity.x=p.x;entity.y=p.y;
+    }
+  }
+});
+
+function endPointer(){
+  pointer.down=false;
+  result.grabbed=false;
+  for(const entity of entities)entity.grabbed=false;
+}
+canvas.addEventListener("pointerup",endPointer);
+canvas.addEventListener("pointercancel",endPointer);
+
+resetBtn.addEventListener("click",reset);
+back.addEventListener("click",()=>location.href="index.html");
+
+function update(dt){
+  const s=dt/1000;
+
+  if(eventTimer>0){
+    eventTimer-=s;
+    if(eventTimer<=0)hideEvent();
+  }
+
+  result.pulse=Math.max(0,result.pulse-s*1.1);
+  result.energy=Math.max(0,result.energy-s*.22);
+
+  if(phase===0){
+    for(const e of entities){
+      if(!e.grabbed){
+        e.x+=Math.sin(performance.now()*.0011+(e.id==="B"?1.4:0))*.055;
+        e.y+=Math.cos(performance.now()*.0014+(e.id==="B"?1.1:0))*.055;
+      }
+    }
+    if(dist(entities[0],entities[1])<42)formNewEntity();
+  }
+
+  if(phase===1&&result.active){
+    for(let i=0;i<field.length;i++){
+      const f=field[i];
+      const fx=W*f.x,fy=H*f.y;
+      const d=Math.hypot(result.x-fx,result.y-fy);
+      if(d<70){
+        const a=Math.atan2(result.y-fy,result.x-fx);
+        result.x+=Math.cos(a)*.22;
+        result.y+=Math.sin(a)*.22;
+      }
+    }
+
+    for(let i=0;i<field.length;i++){
+      const f=field[i],fx=W*f.x,fy=H*f.y;
+      if(Math.hypot(result.x-fx,result.y-fy)<45){
+        f.hit=true;
+        signal.textContent="INTERACTION";
+        signal.style.opacity=".72";
+        showEvent("INTERACTION","THE NEW ENTITY RESPONDS",.75);
+        makeParticles(fx,fy,16,45);
+        ripples.push({x:fx,y:fy,r:10,life:1});
+        f.hit=false;
+        break;
+      }
+    }
+  }
+
+  for(const p of particles){
+    p.x+=p.vx*s;p.y+=p.vy*s;
+    p.vx*=Math.pow(.08,s);p.vy*=Math.pow(.08,s);
+    p.life-=s*1.25;
+  }
+  particles=particles.filter(p=>p.life>0);
+
+  for(const r of ripples)r.life-=s;
+  ripples=ripples.filter(r=>r.life>0);
+}
+
+function glow(x,y,r,a){
+  const g=ctx.createRadialGradient(x,y,0,x,y,r);
+  g.addColorStop(0,"rgba(255,255,255,"+a+")");
+  g.addColorStop(.35,"rgba(255,255,255,"+(a*.24)+")");
+  g.addColorStop(1,"rgba(255,255,255,0)");
+  ctx.fillStyle=g;
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+}
+
+function drawBackground(t){
+  ctx.fillStyle="#020202";ctx.fillRect(0,0,W,H);
+  const g=ctx.createRadialGradient(W*.5,H*.5,0,W*.5,H*.5,Math.min(W,H)*.7);
+  g.addColorStop(0,"rgba(255,255,255,.024)");
+  g.addColorStop(1,"rgba(255,255,255,0)");
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  for(let i=0;i<48;i++){
+    const a=i*2.399+t*.000017;
+    const rr=25+(i%13)/13*Math.min(W,H)*.45;
+    const x=W*.5+Math.cos(a)*rr,y=H*.5+Math.sin(a)*rr;
+    ctx.globalAlpha=.035+(i%5)*.008;
+    ctx.fillStyle="#fff";
+    ctx.beginPath();ctx.arc(x,y,1,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+}
+
+function drawEntity(e,t){
+  if(!e.active)return;
+  const r=e.r+Math.sin(t*.006+(e.id==="B"?1.7:0))*.7;
+  glow(e.x,e.y,r*5,.16);
+  ctx.fillStyle="#fff";
+  ctx.beginPath();ctx.arc(e.x,e.y,r,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#000";
+  ctx.beginPath();ctx.arc(e.x-r*.22,e.y-r*.08,r*.10,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(e.x+r*.22,e.y-r*.08,r*.10,0,Math.PI*2);ctx.fill();
+  if(e.grabbed){
+    ctx.strokeStyle="rgba(255,255,255,.5)";ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(e.x,e.y,r*2.5,0,Math.PI*2);ctx.stroke();
+  }
+}
+
+function drawBond(){
+  if(phase!==0)return;
+  const d=dist(entities[0],entities[1]);
+  if(d>170)return;
+  const a=clamp(1-d/170,.04,.32);
+  ctx.strokeStyle="rgba(255,255,255,"+a+")";
+  ctx.lineWidth=1;ctx.setLineDash([2,9]);
+  ctx.beginPath();ctx.moveTo(entities[0].x,entities[0].y);ctx.lineTo(entities[1].x,entities[1].y);ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function drawField(t){
+  if(phase!==1)return;
+  for(let i=0;i<field.length;i++){
+    const f=field[i],x=W*f.x,y=H*f.y;
+    const pulse=1+Math.sin(t*.002+i)*.12;
+    glow(x,y,34,.035);
+    ctx.strokeStyle="rgba(255,255,255,.18)";
+    ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(x,y,f.r*pulse,0,Math.PI*2);ctx.stroke();
+    ctx.globalAlpha=.48;
+    ctx.fillStyle="#fff";
+    ctx.beginPath();ctx.arc(x,y,2,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=1;
+  }
+}
+
+function drawResult(t){
+  if(!result.active)return;
+  const r=result.r+Math.sin(t*.003)*2+result.pulse*16;
+  glow(result.x,result.y,r*3.4,.13+result.energy*.15);
+  ctx.save();ctx.translate(result.x,result.y);
+  ctx.strokeStyle="rgba(255,255,255,.76)";ctx.lineWidth=1;
+  ctx.beginPath();ctx.arc(0,0,r*1.35,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle="rgba(255,255,255,.34)";
+  ctx.beginPath();ctx.arc(0,0,r*1.8,-.8,.8);ctx.stroke();
+  ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(0,0,r*.43,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#000";
+  ctx.beginPath();ctx.arc(-r*.14,-r*.06,r*.055,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(r*.14,-r*.06,r*.055,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+
+  ctx.globalAlpha=.3;ctx.font="8px Arial";ctx.textAlign="center";ctx.fillStyle="#fff";
+  ctx.fillText("NEW ENTITY",result.x,result.y+r*2.15);ctx.globalAlpha=1;
+}
+
+function drawParticles(){
+  for(const p of particles){
+    ctx.globalAlpha=Math.max(0,p.life)*.68;
+    ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+}
+
+function drawRipples(){
+  for(const r of ripples){
+    ctx.globalAlpha=Math.max(0,r.life)*.3;
+    ctx.strokeStyle="#fff";ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(r.x,r.y,r.r+(1-r.life)*35,0,Math.PI*2);ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+}
+
+function draw(){
+  const t=performance.now();
+  drawBackground(t);
+  drawField(t);
+  drawBond();
+  drawEntity(entities[0],t);
+  drawEntity(entities[1],t);
+  drawResult(t);
+  drawParticles();
+  drawRipples();
+}
+
+function loop(t){
+  const dt=Math.min(40,t-last);last=t;
+  update(dt);draw();requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
