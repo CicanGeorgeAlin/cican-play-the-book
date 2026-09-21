@@ -1977,12 +1977,7 @@ function checkForMerges() {
                 );
 
 
-            if (
-                oneA.size >= MAX_SIZE &&
-                oneB.size >= MAX_SIZE &&
-                d <=
-                MERGE_DISTANCE
-            ) {
+            if (d <= MERGE_DISTANCE) {
 
                 mergeOnes(
                     oneA,
